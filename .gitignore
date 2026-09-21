@@ -1,0 +1,127 @@
+# Byte-compiled / optimized / compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test & coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large runtime / external data (e.g. GIS shapefile ~203MB)
+*.shp
+*.shx
+*.dbf
+*.prj
+*.sbn
+*.sbx
+*.cpg
+*.qix
+data/raw/
+*.zip
+
+# Logs & temp
+*.log
+*.tmp
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.idea/
+*.swp
+
+# Git worktrees
+.worktrees/
+
+# One-time artifacts (per AGENTS.md: 不读不写，不作为规范依据)
+tmp/
+
+# WorkBuddy local project data
+.workbuddy/
+
+# Local secrets / credentials (never commit)
+.env
+.env.local
+
+# workspace 持久化（决议见 .scratch/workspace-spec；作用域只限仓库根 workspace/，顺序即语义，不可调）
+# 1) workspace 下全部 PDF 忽略（下载正文不进版，只留台账）
+/workspace/**/*.pdf
+# 2) 各 topic 的 run/ 为忽略缓存：忽略其内容而非目录本身，否则其下否定全部失效
+/workspace/*/run/*
+# 3) 两级否定先捞回监管目录、再捞回监管原文例外（EMA SPC 原文字节留档，哈希记 b2/version-record.json）
+!/workspace/*/run/b2/
+/workspace/*/run/b2/*
+!/workspace/*/run/b2/ema-*-spc.pdf
+
+# zotero-pdf2zh runtime (upstream release v4.1.7, see zotero-pdf2zh/)
+zotero-pdf2zh/server/config/config.json
+zotero-pdf2zh/server/config/config.toml
+zotero-pdf2zh/server/config/venv.json
+zotero-pdf2zh/server/config/package_update_state.json
+zotero-pdf2zh/server/config/*.invalid.bak
+zotero-pdf2zh/server/config/*.invalid.*.bak
+zotero-pdf2zh/server/zotero-pdf2zh-next-venv/
+zotero-pdf2zh/server/zotero-pdf2zh-venv/
+zotero-pdf2zh/server/zotero-pdf2zh-next-venv.staging/
+zotero-pdf2zh/server/zotero-pdf2zh-venv.staging/
+zotero-pdf2zh/server/zotero-pdf2zh-next-venv.backup/
+zotero-pdf2zh/server/zotero-pdf2zh-venv.backup/
+zotero-pdf2zh/server/translated/
+zotero-pdf2zh/translated/
+zotero-pdf2zh/server/LOG.md
+zotero-pdf2zh/server/_debug_progress.log
+zotero-pdf2zh/server/dev/
+
+# impeccable 设计 skill（skill 与 agent 定义进版，运行产物不进版）
+# impeccable-ignore-start
+# Ephemeral output, runtime state, and per-dev overrides.
+# Unanchored: .impeccable may sit at the repo root or under a nested
+# workspace (apps/web/.impeccable/...); anchored patterns would miss it.
+# Shared artifacts stay tracked: config.json, live/config.json,
+# design.json, surfaces/*.md, critique/*.md.
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json
+.impeccable/*.png
+.impeccable/review/
+.impeccable/questions/
+.impeccable/live/server.json
+.impeccable/live/sessions/
+.impeccable/live/previews/
+.impeccable/live/annotations/
+.impeccable/live/cache/
+.impeccable/live/manual-edit-apply-transaction.json
+.impeccable/live/manual-edit-events.jsonl
+.impeccable/live/manual-edit-evidence/
+.impeccable/live/pending-manual-edits.json
+.impeccable/live/deferred-svelte-component-accepts.json
+.impeccable/live/*.png
+# impeccable-ignore-end
+
+# Claude Code 本机设置（impeccable 设计 hook 清单落在这里；机器本地、不进版）
+.claude/settings.local.json

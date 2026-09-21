@@ -1,0 +1,1061 @@
+# 医学术语词表（机器唯一真源；规则与协议见 references/protocols/term-lexicon-protocol.md）
+# 消费方：scripts/term_expand.py（发现侧扩展）、scripts/review_knowledge.py（T-01 事后校验）
+# 结构：四类关系有向；report 为 true 的关系才产出 T-01 finding（上下位与正字变体一律不报）
+# 编辑规则：运行中只增不改；任务内冻结本文件，新词先进 references/lexicon/term-lexicon.candidates.yaml 候选队列（见协议件 §6）
+# 格式约束：本文件是团队手写的 YAML 子集，脚本自带读取器（scripts/term_expand.py）——只用块映射与块序列，
+#   序列可与所属键同缩进，同一序列各项必须同缩进、各项续行缩进保持一致；不要用锚点、多文档与自定标签。
+version: lexicon v8.0
+frozen_at: 2026-09-21
+
+# 四类关系与其记法（记法即 direction 取值，见 references/protocols/term-lexicon-protocol.md §1）；report: true 才进 T-01。
+relations:
+  - type: synonym
+    label: 同义
+    symbol: "="
+    report: true
+  - type: hierarchy
+    label: 上下位
+    symbol: "⊃⊂"
+    report: false
+  - type: confusable
+    label: 易混
+    symbol: "≠"
+    report: true
+  - type: variant
+    label: 正字变体
+    symbol: "≈"
+    report: false
+
+synonym_sets:
+  - id: mi
+    canonical: 心肌梗死
+    report: true
+    note: 全篇统一中文主名为 心肌梗死；MI 为英文与缩写保留，不参与中文混用判定
+    members:
+      - 心肌梗死
+      - 心梗
+  - id: rux
+    canonical: ruxolitinib
+    report: true
+    note: 暂以英文 INN ruxolitinib 为主名，中文形芦可替尼并列；英文与商品名保留，不参与中文混用判定
+    members:
+      - 芦可替尼
+      - ruxolitinib
+
+  - id: mf
+    canonical: 骨髓纤维化
+    report: true
+    note: 中文主名为 骨髓纤维化；myelofibrosis 为英文形并列，不参与中文混用判定
+    members:
+      - 骨髓纤维化
+      - myelofibrosis
+  - id: ccb
+    canonical: 钙通道阻滞剂
+    report: true
+    note: 钙通道阻滞剂／钙离子拮抗剂／CCB 三形同义（用户确认）；商品名与缩写不进混用判定
+    members:
+      - CCB
+      - 钙离子拮抗剂
+      - 钙通道阻滞剂
+  - id: ldlc
+    canonical: 低密度脂蛋白胆固醇
+    report: true
+    note: LDL-C 与 低密度脂蛋白胆固醇 同义（用户确认）
+    members:
+      - LDL-C
+      - 低密度脂蛋白胆固醇
+  - id: dyslip
+    canonical: 血脂异常
+    report: true
+    note: 高脂血症＝血脂异常（用户确认）
+    members:
+      - 血脂异常
+      - 高脂血症
+  - id: ascvd
+    canonical: 动脉粥样硬化性心血管疾病
+    report: true
+    note: ASCVD 为缩写形同义（用户确认）
+    members:
+      - ASCVD
+      - 动脉粥样硬化性心血管疾病
+  - id: set
+    canonical: 慢性肾脏病
+    report: true
+    note: 慢性肾脏病 家族同义成员（生长循环晋升自动建集，id 可按需手调）
+    members:
+      - CKD
+      - 慢性肾脏病
+  - id: set
+    canonical: 血管紧张素受体阻滞剂
+    report: true
+    note: 血管紧张素受体阻滞剂 家族同义成员（生长循环晋升自动建集，id 可按需手调）
+    members:
+      - ARB
+      - 血管紧张素受体阻滞剂
+  - id: teripara
+    canonical: teriparatide
+    report: true
+    note: teriparatide 家族同义成员（生长循环晋升自动建集，id 可按需手调）
+    members:
+      - teriparatide
+      - 特立帕肽
+  - id: set
+    canonical: 每周一次
+    report: true
+    note: 每周一次 家族同义成员（生长循环晋升自动建集，id 可按需手调）
+    members:
+      - 周制剂
+      - 每周一次
+  - id: set
+    canonical: 每日一次
+    report: true
+    note: 每日一次 家族同义成员（生长循环晋升自动建集，id 可按需手调）
+    members:
+      - 日制剂
+      - 每日一次
+terms:
+  # 种子家族一：心梗家族（打透）
+  - term: 心肌梗死
+    canonical: 心肌梗死
+    chinese_aliases: [心梗, 心肌梗塞]
+    english: myocardial infarction
+    abbreviations: [MI]
+    family: 心梗家族
+    report: true
+    rank: true
+    source: 10 号票种子（心肌梗死 = 心梗）
+    relations:
+      - type: synonym
+        target: 心梗
+        direction: "="
+      - type: hierarchy
+        target: AMI
+        direction: "⊃"
+      - type: confusable
+        target: 心肌缺血
+        direction: "≠"
+      - type: variant
+        target: 心肌梗塞
+        direction: "≈"
+  - term: 心梗
+    canonical: 心肌梗死
+    chinese_aliases: [心肌梗死]
+    english: myocardial infarction
+    abbreviations: [MI]
+    family: 心梗家族
+    report: true
+    rank: true
+    source: 10 号票种子（心梗 = 心肌梗死）
+    relations:
+      - type: synonym
+        target: 心肌梗死
+        direction: "="
+      - type: hierarchy
+        target: STEMI
+        direction: "⊃"
+      - type: hierarchy
+        target: NSTEMI
+        direction: "⊃"
+      - type: confusable
+        target: 心肌病
+        direction: "≠"
+      - type: variant
+        target: 心肌梗塞
+        direction: "≈"
+  - term: MI
+    canonical: 心肌梗死
+    chinese_aliases: [心肌梗死, 心梗]
+    english: myocardial infarction
+    abbreviations: [MI]
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（MI = 心肌梗死，英文与缩写保留不报）
+    relations:
+      - type: synonym
+        target: 心肌梗死
+        direction: "="
+      - type: hierarchy
+        target: AMI
+        direction: "⊃"
+  - term: AMI
+    canonical: AMI
+    chinese_aliases: [急性心肌梗死]
+    english: acute myocardial infarction
+    abbreviations: [AMI]
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（AMI ⊂ MI，急性亚型；纠 08 资产 AMI／MI 并列之误）
+    relations:
+      - type: hierarchy
+        target: MI
+        direction: "⊂"
+  - term: STEMI
+    canonical: STEMI
+    chinese_aliases: [ST段抬高型心肌梗死]
+    english: ST-elevation myocardial infarction
+    abbreviations: [STEMI]
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（心梗 ⊃ STEMI）
+    relations:
+      - type: hierarchy
+        target: 心梗
+        direction: "⊂"
+      - type: hierarchy
+        target: 心肌梗死
+        direction: "⊂"
+  - term: NSTEMI
+    canonical: NSTEMI
+    chinese_aliases: [非ST段抬高型心肌梗死]
+    english: non-ST-elevation myocardial infarction
+    abbreviations: [NSTEMI]
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（心梗 ⊃ NSTEMI）
+    relations:
+      - type: hierarchy
+        target: 心梗
+        direction: "⊂"
+      - type: hierarchy
+        target: 心肌梗死
+        direction: "⊂"
+  - term: 心肌梗塞
+    canonical: 心肌梗死
+    chinese_aliases: []
+    english: myocardial infarction
+    abbreviations: []
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（正字变体，静默归一，不报）
+    relations:
+      - type: variant
+        target: 心肌梗死
+        direction: "≈"
+      - type: variant
+        target: 心梗
+        direction: "≈"
+  - term: 心肌缺血
+    canonical: 心肌缺血
+    chinese_aliases: []
+    english: myocardial ischemia
+    abbreviations: []
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（易混，永不自动扩展）
+    relations:
+      - type: confusable
+        target: 心肌梗死
+        direction: "≠"
+  - term: 心肌病
+    canonical: 心肌病
+    chinese_aliases: []
+    english: cardiomyopathy
+    abbreviations: []
+    family: 心梗家族
+    report: false
+    rank: true
+    source: 10 号票种子（易混，永不自动扩展）
+    relations:
+      - type: confusable
+        target: 心梗
+        direction: "≠"
+  # 正交例：正字变体（连字符与大小写）
+  - term: SGLT2
+    canonical: SGLT2
+    chinese_aliases: [钠-葡萄糖协同转运蛋白2抑制剂]
+    english: sodium-glucose cotransporter-2 inhibitor
+    abbreviations: [SGLT2i]
+    family: SGLT2 正交例
+    report: false
+    rank: true
+    source: 10 号票正交例（连字符与大小写变体，静默归一）；易混对为 SGLT1（永不自动扩展）
+    relations:
+      - type: variant
+        target: SGLT-2
+        direction: "≈"
+      - type: confusable
+        target: SGLT1
+        direction: "≠"
+  - term: SGLT-2
+    canonical: SGLT2
+    chinese_aliases: [钠-葡萄糖协同转运蛋白2抑制剂]
+    english: sodium-glucose cotransporter-2 inhibitor
+    abbreviations: [SGLT2i]
+    family: SGLT2 正交例
+    report: false
+    rank: true
+    source: 10 号票正交例（连字符与大小写变体，静默归一）；易混对为 SGLT1（永不自动扩展）
+    relations:
+      - type: variant
+        target: SGLT2
+        direction: "≈"
+      - type: confusable
+        target: SGLT1
+        direction: "≠"
+  - term: SGLT1
+    canonical: SGLT1
+    chinese_aliases: [钠-葡萄糖协同转运蛋白1抑制剂]
+    english: sodium-glucose cotransporter-1 inhibitor
+    abbreviations: [SGLT1i]
+    family: SGLT2 正交例
+    report: false
+    rank: true
+    source: 10 号票正交例（易混对，永不自动扩展）
+    relations:
+      - type: confusable
+        target: SGLT2
+        direction: "≠"
+  # 新家族：JAK抑制剂家族（2026-09-17-ruxolitinib-indications 生长循环确认，用户拍板建族）
+  - term: ruxolitinib
+    canonical: ruxolitinib
+    chinese_aliases: [芦可替尼]
+    english: ruxolitinib
+    abbreviations: [Jakafi, Jakavi, Opzelura]
+    family: JAK抑制剂家族
+    report: true
+    rank: true
+    source: 2026-09-17-ruxolitinib-indications 生长循环确认（建JAK抑制剂新家族，用户拍板）
+    relations:
+      - type: synonym
+        target: 芦可替尼
+        direction: "="
+      - type: hierarchy
+        target: JAK抑制剂
+        direction: "⊂"
+  - term: 芦可替尼
+    canonical: ruxolitinib
+    chinese_aliases: [ruxolitinib]
+    english: ruxolitinib
+    abbreviations: [Jakafi, Jakavi, Opzelura]
+    family: JAK抑制剂家族
+    report: true
+    rank: true
+    source: 2026-09-17-ruxolitinib-indications 生长循环确认（建JAK抑制剂新家族，用户拍板）
+    relations:
+      - type: synonym
+        target: ruxolitinib
+        direction: "="
+      - type: hierarchy
+        target: JAK抑制剂
+        direction: "⊂"
+  - term: JAK抑制剂
+    canonical: JAK抑制剂
+    chinese_aliases: []
+    english: Janus kinase inhibitor
+    abbreviations: [JAKi]
+    family: JAK抑制剂家族
+    report: false
+    rank: true
+    source: 2026-09-17-ruxolitinib-indications 生长循环确认（建JAK抑制剂新家族，用户拍板）
+    relations:
+      - type: hierarchy
+        target: ruxolitinib
+        direction: "⊃"
+  - term: myelofibrosis
+    canonical: 骨髓纤维化
+    chinese_aliases: [骨髓纤维化]
+    english: myelofibrosis
+    abbreviations: []
+    family: 骨髓纤维化家族
+    report: true
+    rank: true
+    source: 2026-09-17-myelofibrosis-treatment 生长循环确认（用户拍板：两族一起晋升）
+    relations:
+      - type: synonym
+        target: 骨髓纤维化
+        direction: "="
+  - term: 骨髓纤维化
+    canonical: 骨髓纤维化
+    chinese_aliases: [myelofibrosis]
+    english: myelofibrosis
+    abbreviations: []
+    family: 骨髓纤维化家族
+    report: true
+    rank: true
+    source: 2026-09-17-myelofibrosis-treatment 生长循环确认（用户拍板：两族一起晋升）
+    relations:
+      - type: synonym
+        target: myelofibrosis
+        direction: "="
+  - term: fedratinib
+    canonical: fedratinib
+    chinese_aliases: []
+    english: fedratinib
+    abbreviations: [Inrebic]
+    family: JAK抑制剂家族
+    report: true
+    rank: true
+    source: 2026-09-17-myelofibrosis-treatment 生长循环确认（用户拍板：两族一起晋升）
+    relations:
+      - type: hierarchy
+        target: JAK抑制剂
+        direction: "⊂"
+  - term: pacritinib
+    canonical: pacritinib
+    chinese_aliases: []
+    english: pacritinib
+    abbreviations: [Vonjo]
+    family: JAK抑制剂家族
+    report: true
+    rank: true
+    source: 2026-09-17-myelofibrosis-treatment 生长循环确认（用户拍板：两族一起晋升）
+    relations:
+      - type: hierarchy
+        target: JAK抑制剂
+        direction: "⊂"
+  - term: momelotinib
+    canonical: momelotinib
+    chinese_aliases: []
+    english: momelotinib
+    abbreviations: [Ojjaara]
+    family: JAK抑制剂家族
+    report: true
+    rank: true
+    source: 2026-09-17-myelofibrosis-treatment 生长循环确认（用户拍板：两族一起晋升）
+    relations:
+      - type: hierarchy
+        target: JAK抑制剂
+        direction: "⊂"
+  - term: ARNI
+    canonical: ARNI
+    chinese_aliases: []
+    english: angiotensin receptor-neprilysin inhibitor
+    abbreviations: []
+    family: ARNI家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension Step1/关键词表（词表未命中））；2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：ARNI ⊃ 沙库巴曲缬沙坦；Entresto／诺欣妥／LCZ696 同义））
+    relations:
+      - type: hierarchy
+        target: 沙库巴曲缬沙坦
+        direction: "⊃"
+  - term: 沙库巴曲缬沙坦
+    canonical: 沙库巴曲缬沙坦
+    chinese_aliases: [诺欣妥]
+    english: sacubitril/valsartan
+    abbreviations: [Entresto, LCZ696]
+    family: ARNI家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension Step1/关键词表（词表未命中））；2026-09-18 用户纠正：Entresto／诺欣妥／LCZ696 系原研商品名与开发代号，改记别名、不建同义边
+    relations:
+      - type: hierarchy
+        target: ARNI
+        direction: "⊂"
+  - term: 氨氯地平
+    canonical: 氨氯地平
+    chinese_aliases: []
+    english: amlodipine
+    abbreviations: []
+    family: CCB家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension Step1/关键词表（词表未命中））；2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：钙通道阻滞剂＝钙离子拮抗剂＝CCB；氨氯地平 ⊂ 钙通道阻滞剂））
+    relations:
+      - type: hierarchy
+        target: 钙通道阻滞剂
+        direction: "⊂"
+  - term: 钙通道阻滞剂
+    canonical: 钙通道阻滞剂
+    chinese_aliases: []
+    english: calcium channel blocker
+    abbreviations: []
+    family: CCB家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension Step1/关键词表（词表未命中））；2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：钙通道阻滞剂＝钙离子拮抗剂＝CCB；氨氯地平 ⊂ 钙通道阻滞剂））
+    relations:
+      - type: synonym
+        target: 钙离子拮抗剂
+        direction: "="
+      - type: synonym
+        target: CCB
+        direction: "="
+      - type: hierarchy
+        target: 氨氯地平
+        direction: "⊃"
+  - term: 高血压
+    canonical: 高血压
+    chinese_aliases: []
+    english: hypertension
+    abbreviations: []
+    family: 高血压家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension Step1/关键词表（词表未命中））；2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：无边，只登记））
+    no_edge: true
+    relations: []
+  - term: 钙离子拮抗剂
+    canonical: 钙通道阻滞剂
+    chinese_aliases: []
+    english: calcium channel blocker
+    abbreviations: []
+    family: CCB家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：钙通道阻滞剂＝钙离子拮抗剂＝CCB；氨氯地平 ⊂ 钙通道阻滞剂））
+    relations:
+      - type: synonym
+        target: 钙通道阻滞剂
+        direction: "="
+  - term: CCB
+    canonical: 钙通道阻滞剂
+    chinese_aliases: []
+    english: CCB
+    abbreviations: []
+    family: CCB家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-arni-ccb-hypertension 生长循环补记（用户确认：钙通道阻滞剂＝钙离子拮抗剂＝CCB；氨氯地平 ⊂ 钙通道阻滞剂））
+    relations:
+      - type: synonym
+        target: 钙通道阻滞剂
+        direction: "="
+  - term: LDL-C
+    canonical: 低密度脂蛋白胆固醇
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: 血脂家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：LDL-C＝低密度脂蛋白胆固醇；高脂血症＝血脂异常；高胆固醇血症 ⊂ 血脂异常））
+    relations:
+      - type: synonym
+        target: 低密度脂蛋白胆固醇
+        direction: "="
+  - term: 低密度脂蛋白胆固醇
+    canonical: 低密度脂蛋白胆固醇
+    chinese_aliases: []
+    english: LDL cholesterol
+    abbreviations: []
+    family: 血脂家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：LDL-C＝低密度脂蛋白胆固醇；高脂血症＝血脂异常；高胆固醇血症 ⊂ 血脂异常））
+    relations:
+      - type: synonym
+        target: LDL-C
+        direction: "="
+  - term: 高胆固醇血症
+    canonical: 高胆固醇血症
+    chinese_aliases: []
+    english: hypercholesterolemia
+    abbreviations: []
+    family: 血脂家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：LDL-C＝低密度脂蛋白胆固醇；高脂血症＝血脂异常；高胆固醇血症 ⊂ 血脂异常））
+    relations:
+      - type: hierarchy
+        target: 血脂异常
+        direction: "⊂"
+  - term: 血脂异常
+    canonical: 血脂异常
+    chinese_aliases: []
+    english: dyslipidemia
+    abbreviations: []
+    family: 血脂家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：LDL-C＝低密度脂蛋白胆固醇；高脂血症＝血脂异常；高胆固醇血症 ⊂ 血脂异常））
+    relations:
+      - type: hierarchy
+        target: 高胆固醇血症
+        direction: "⊃"
+      - type: synonym
+        target: 高脂血症
+        direction: "="
+  - term: 他汀
+    canonical: 他汀
+    chinese_aliases: []
+    english: statin
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 降脂药物
+        direction: "⊂"
+      - type: hierarchy
+        target: 阿托伐他汀
+        direction: "⊃"
+      - type: hierarchy
+        target: 瑞舒伐他汀
+        direction: "⊃"
+      - type: hierarchy
+        target: 辛伐他汀
+        direction: "⊃"
+  - term: 依折麦布
+    canonical: 依折麦布
+    chinese_aliases: []
+    english: ezetimibe
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 降脂药物
+        direction: "⊂"
+  - term: PCSK9抑制剂
+    canonical: PCSK9抑制剂
+    chinese_aliases: []
+    english: PCSK9 inhibitor
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 降脂药物
+        direction: "⊂"
+  - term: 贝派地酸
+    canonical: 贝派地酸
+    chinese_aliases: []
+    english: bempedoic acid
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 降脂药物
+        direction: "⊂"
+  - term: 一级预防
+    canonical: 一级预防
+    chinese_aliases: []
+    english: primary prevention
+    abbreviations: []
+    family: 心血管预防家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：无边，只登记））
+    no_edge: true
+    relations: []
+  - term: 动脉粥样硬化性心血管疾病
+    canonical: 动脉粥样硬化性心血管疾病
+    chinese_aliases: []
+    english: atherosclerotic cardiovascular disease
+    abbreviations: []
+    family: ASCVD家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention Step1/关键词表（词表未命中） ｜ 2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：ASCVD 缩写同义））
+    relations:
+      - type: synonym
+        target: ASCVD
+        direction: "="
+  - term: 高脂血症
+    canonical: 血脂异常
+    chinese_aliases: []
+    english: hyperlipidemia
+    abbreviations: []
+    family: 血脂家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：LDL-C＝低密度脂蛋白胆固醇；高脂血症＝血脂异常；高胆固醇血症 ⊂ 血脂异常））
+    relations:
+      - type: synonym
+        target: 血脂异常
+        direction: "="
+  - term: 降脂药物
+    canonical: 降脂药物
+    chinese_aliases: []
+    english: lipid-lowering drug
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 他汀
+        direction: "⊃"
+      - type: hierarchy
+        target: 依折麦布
+        direction: "⊃"
+      - type: hierarchy
+        target: PCSK9抑制剂
+        direction: "⊃"
+      - type: hierarchy
+        target: 贝派地酸
+        direction: "⊃"
+  - term: 阿托伐他汀
+    canonical: 阿托伐他汀
+    chinese_aliases: []
+    english: atorvastatin
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 他汀
+        direction: "⊂"
+  - term: 瑞舒伐他汀
+    canonical: 瑞舒伐他汀
+    chinese_aliases: []
+    english: rosuvastatin
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 他汀
+        direction: "⊂"
+  - term: 辛伐他汀
+    canonical: 辛伐他汀
+    chinese_aliases: []
+    english: simvastatin
+    abbreviations: []
+    family: 降脂药物家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：降脂药物 ⊃ 他汀／依折麦布／PCSK9抑制剂／贝派地酸；他汀 ⊃ 阿托伐他汀／瑞舒伐他汀／辛伐他汀））
+    relations:
+      - type: hierarchy
+        target: 他汀
+        direction: "⊂"
+  - term: ASCVD
+    canonical: 动脉粥样硬化性心血管疾病
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: ASCVD家族
+    report: true
+    rank: true
+    source: 2026-09-18 生长循环晋升（2026-09-18-ldl-c-primary-prevention 生长循环补记（用户确认：ASCVD 缩写同义））
+    relations:
+      - type: synonym
+        target: 动脉粥样硬化性心血管疾病
+        direction: "="
+  - term: 慢性肾脏病
+    canonical: 慢性肾脏病
+    chinese_aliases: []
+    english: chronic kidney disease
+    abbreviations: []
+    family: 慢性肾脏病家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: synonym
+        target: CKD
+        direction: "="
+      - type: hierarchy
+        target: 糖尿病肾病
+        direction: "⊃"
+  - term: CKD
+    canonical: 慢性肾脏病
+    chinese_aliases: []
+    english: chronic kidney disease
+    abbreviations: []
+    family: 慢性肾脏病家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: synonym
+        target: 慢性肾脏病
+        direction: "="
+  - term: 糖尿病肾病
+    canonical: 糖尿病肾病
+    chinese_aliases: []
+    english: diabetic kidney disease
+    abbreviations: []
+    family: 慢性肾脏病家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: 慢性肾脏病
+        direction: "⊂"
+  - term: 蛋白尿
+    canonical: 蛋白尿
+    chinese_aliases: []
+    english: proteinuria
+    abbreviations: []
+    family: 蛋白尿家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: 白蛋白尿
+        direction: "⊃"
+  - term: 白蛋白尿
+    canonical: 白蛋白尿
+    chinese_aliases: []
+    english: albuminuria
+    abbreviations: []
+    family: 蛋白尿家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: 蛋白尿
+        direction: "⊂"
+  - term: ARB
+    canonical: 血管紧张素受体阻滞剂
+    chinese_aliases: []
+    english: angiotensin receptor blocker
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: synonym
+        target: 血管紧张素受体阻滞剂
+        direction: "="
+      - type: hierarchy
+        target: 缬沙坦
+        direction: "⊃"
+      - type: hierarchy
+        target: 氯沙坦
+        direction: "⊃"
+      - type: hierarchy
+        target: 厄贝沙坦
+        direction: "⊃"
+      - type: hierarchy
+        target: 替米沙坦
+        direction: "⊃"
+  - term: 血管紧张素受体阻滞剂
+    canonical: 血管紧张素受体阻滞剂
+    chinese_aliases: []
+    english: angiotensin receptor blocker
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: synonym
+        target: ARB
+        direction: "="
+  - term: 缬沙坦
+    canonical: 缬沙坦
+    chinese_aliases: []
+    english: valsartan
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: ARB
+        direction: "⊂"
+  - term: 氯沙坦
+    canonical: 氯沙坦
+    chinese_aliases: []
+    english: losartan
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: ARB
+        direction: "⊂"
+  - term: 厄贝沙坦
+    canonical: 厄贝沙坦
+    chinese_aliases: []
+    english: irbesartan
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: ARB
+        direction: "⊂"
+  - term: 替米沙坦
+    canonical: 替米沙坦
+    chinese_aliases: []
+    english: telmisartan
+    abbreviations: []
+    family: ARB家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    relations:
+      - type: hierarchy
+        target: ARB
+        direction: "⊂"
+  - term: eGFR
+    canonical: eGFR
+    chinese_aliases: []
+    english: estimated glomerular filtration rate
+    abbreviations: []
+    family: 肾功能指标家族
+    report: true
+    rank: true
+    source: 2026-09-19 生长循环晋升（2026-09-19-arni-ckd-proteinuria Step1/关键词表）
+    no_edge: true
+    relations: []
+  - term: teriparatide
+    canonical: teriparatide
+    chinese_aliases: []
+    english: teriparatide
+    abbreviations: []
+    family: 特立帕肽家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 1）
+    relations:
+      - type: synonym
+        target: 特立帕肽
+        direction: "="
+      - type: hierarchy
+        target: 甲状旁腺激素
+        direction: "⊂"
+      - type: confusable
+        target: abaloparatide
+        direction: "≠"
+  - term: 特立帕肽
+    canonical: teriparatide
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: 特立帕肽家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 2）
+    relations:
+      - type: synonym
+        target: teriparatide
+        direction: "="
+  - term: 复泰奥
+    canonical: teriparatide
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: 特立帕肽家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 3）
+    no_edge: true
+    relations: []
+  - term: abaloparatide
+    canonical: abaloparatide
+    chinese_aliases: []
+    english: abaloparatide
+    abbreviations: []
+    family: 特立帕肽家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 4）
+    relations:
+      - type: confusable
+        target: teriparatide
+        direction: "≠"
+  - term: 甲状旁腺激素
+    canonical: 甲状旁腺激素
+    chinese_aliases: []
+    english: parathyroid hormone
+    abbreviations: []
+    family: 甲状旁腺激素家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 5）
+    relations:
+      - type: hierarchy
+        target: teriparatide
+        direction: "⊃"
+  - term: 骨质疏松
+    canonical: 骨质疏松
+    chinese_aliases: []
+    english: osteoporosis
+    abbreviations: []
+    family: 骨质疏松家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 6）
+    relations:
+      - type: hierarchy
+        target: 绝经后骨质疏松
+        direction: "⊃"
+      - type: hierarchy
+        target: 原发性骨质疏松
+        direction: "⊃"
+      - type: confusable
+        target: 骨量减少
+        direction: "≠"
+  - term: 骨密度
+    canonical: 骨密度
+    chinese_aliases: []
+    english: bone mineral density
+    abbreviations: []
+    family: 骨质疏松家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 7）
+    relations:
+      - type: hierarchy
+        target: 腰椎骨密度
+        direction: "⊃"
+  - term: 椎体骨折
+    canonical: 椎体骨折
+    chinese_aliases: []
+    english: vertebral fracture
+    abbreviations: []
+    family: 骨质疏松家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 8）
+    relations:
+      - type: hierarchy
+        target: 骨质疏松性骨折
+        direction: "⊂"
+  - term: 周制剂
+    canonical: 每周一次
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: 给药频次家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 9）
+    relations:
+      - type: synonym
+        target: 每周一次
+        direction: "="
+      - type: confusable
+        target: 日制剂
+        direction: "≠"
+  - term: 日制剂
+    canonical: 每日一次
+    chinese_aliases: []
+    english: 
+    abbreviations: []
+    family: 给药频次家族
+    report: true
+    rank: true
+    source: 2026-09-21 生长循环晋升（Step1 关键词表/日志行 10）
+    relations:
+      - type: synonym
+        target: 每日一次
+        direction: "="
+      - type: confusable
+        target: 周制剂
+        direction: "≠"

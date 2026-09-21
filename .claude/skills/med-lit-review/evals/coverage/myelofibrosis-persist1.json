@@ -1,0 +1,38 @@
+{
+  "id": "myelofibrosis-persist1",
+  "topic": "骨髓纤维化 PERSIST-1 回归（已知必中）：交付原查询（多实体 AND 混拼）**漏检**，实体闭合查询**取回**主报告",
+  "kind": "known-hit",
+  "expect_shape": "取回",
+  "applies_to": ["myelofibrosis"],
+  "baseline_delivery": "2026-09-17-myelofibrosis-treatment",
+  "known_hits": [
+    {
+      "id": "PERSIST-1",
+      "doi": "10.1016/s2352-3026(17)30027-3",
+      "pmid": "28336242",
+      "openalex": "W2598479043",
+      "label": "Pacritinib versus best available therapy for the treatment of myelofibrosis irrespective of baseline cytopenias (PERSIST-1): an international, randomised, phase 3 trial（2017；基线被引 321）"
+    }
+  ],
+  "baseline": {
+    "source": ".scratch/search-coverage/tickets/07-coverage-ledger-and-acceptance.md §0（PERSIST-1 可达性四条读数）",
+    "note": "基线读数：交付原查询「FREEDOM fedratinib PERSIST-1 pacritinib myelofibrosis phase 3」（OpenAlex，count 31）**不在返回集**（多实体 AND 混拼）；实体闭合查询「myelofibrosis pacritinib phase 3」秩 **1/50** 可取回；2026-09-17 交付池 242 条逐条扫描主报告 0 命中（全文件唯一「PERSIST-1」是另一篇题名提及）。期望形态是**取回**：机制集（实体闭合追加轮／引文扩展）须取回该 DOI／PMID；条目是否在当日交付池只是基线读数，不作断言。名次与集合规模随 provider 排序／收录漂移只记漂移行、不判假失败。",
+    "pool": {
+      "delivery": "workspace/2026-09-17-myelofibrosis-treatment",
+      "pool": "run/merged-pool.json",
+      "count": 242,
+      "in_pool": [],
+      "absent": ["PERSIST-1"]
+    },
+    "probes": [
+      {
+        "provider": "openalex",
+        "query": "myelofibrosis pacritinib phase 3",
+        "sort": "relevance_score:desc",
+        "per_page": 50,
+        "depth": 50,
+        "covers": [{"id": "PERSIST-1", "rank": 1, "cited_by": 321}]
+      }
+    ]
+  }
+}

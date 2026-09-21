@@ -1,0 +1,26 @@
+# ADR-0021 摘要入库：来源次序、仅空补齐与声明一致硬门禁
+
+- 日期：2026-09-18；状态：已接受；来源：grill-with-docs 会话（六轮 26 问 live exchange）——用户拍板落点、写入范围、取数次序与形态、缺口行为、调用形态、编排列、覆盖率口径、门禁面、回填与验证方式、词条命名与 Step5 摘要源。
+- 上下文：agent 文献链路入库的条目从来不带摘要。`use-zotero/scripts/seed_from_doi.py` 的 `crossref_meta()` 只映射 title／creators／container-title／volume／pages／date／DOI／url／language／ISSN，条目 dict 无 `abstractNote`；`place_imports.py` 只写 `collections`／`parentItem`／delete；全仓仅 RDF 分支（`references/rdf-mapping.md`）提过 `abstractNote←dcterms:abstract`。检索层其实拿得到摘要（`PaperCandidate.abstract` 全 provider 齐、`--enrich` 经 OpenAlex 补缺、`scripts/fetch_pubmed_abstract.py` 兜底），但它止步于交付目录，且交付内的池文件是 agent 手搓件而非规范产物——实跑两个交付：`2026-09-17-myelofibrosis-treatment/run/merged-pool.json` 242 条中 210 条带 abstract，`2026-09-17-ruxolitinib-indications/run/merged-pool.json` 150 条一条都没有。三个后果：库内缺一列检索与阅读都依赖的字段；R5（ADR-0018）「摘要级」要求「按摘要填研究要素」，库内无摘要则 Step5 无单一真源；「入库到底带没带摘要」无任何机器判据。另经本机只读实测：`journalArticle`／`conferencePaper`／`preprint`／`report`／`document`／`webpage`／`book`／`standard` 等类型均含 `abstractNote` 字段——「不适用」是文种判断不是 schema 限制。
+- 决定：
+  - **落点单字段**：摘要只写条目 `abstractNote`，不建子笔记、不只留交付物。
+  - **来源次序**：入库摘要表（链内池摘要，已清洗）→ Crossref（`message.abstract`，JATS）→ PubMed（EFetch）→ OpenAlex（`abstract_inverted_index` 重建）；全程只读公开 API。未命中表且未开 `--no-fetch` 时默认联网补，失败留空记状态（不阻断）。
+  - **清洗口径**：JATS/HTML 标签转空行、解 HTML 实体、压空白、剔开头的 `Abstract`／`摘要` 标签行；结构化摘要的分节标题原样留在正文、不转 markdown 标记；不翻译、不截断。
+  - **写入范围与覆盖**：新建条目一律尝试填；既有条目（DUP／DUP-GAP）仅当 `abstractNote` 为空才补，非空永不覆盖（幂等、可重跑）。
+  - **适用性按文种**：期刊论文／预印本／会议论文可摘要；指南、监管文件、书章等非摘要型标「不适用」；无 DOI 但有 PMID 走 PMID；两标识皆无标「无标识不可取」。
+  - **缺口非阻断**：落点报告新增「摘要」列逐条状态（已填：来源／未填：原因）＋计数行；不写占位文本；只有影响研读的缺口（如摘要级无摘要）才进 §8 局限。
+  - **中间产物**：Step2 机器产出 `run/b1/ingest-abstracts.json`（同 DOI 多来源取最完整者，另出无摘要清单）；覆盖率分母＝可摘要文种（type 缺失者计入并单列「类型未知」），机器字段进 `run/b1/dedupe-report.json`、人读一行进 `bucketing-report.md`；登记按忽略类（run/ 内不进版）＋manifest 记再生命令与哈希（沿 ADR-0010，不新增规则）。
+  - **命令面**：`seed_from_doi.py --abstracts-file <入库摘要表>`（不传即不启用池摘要，保手工调用不变）＋共享 `--no-fetch` 关联网补漏；新增 `fill_abstracts.py` 给既有条目补空（`--dry-run` → 一次确认 → 写 → 回查，与 place／attach 同纪律）。取数与清洗逻辑落共享模块（仿 `dedup_gate.py` 先例，跨 skill 包不 import）。
+  - **编排落字**：Step1 默认带 `--enrich`；交互点三写库计划表加「摘要」列（逐行「已取到（来源）／待补（可补／不可补）／不适用」）；Step5 研读的摘要源改为库内 `abstractNote` 优先、空了才回入库摘要表或联网补读。
+  - **校验（机器闭合）**：门禁新增独立断言 D-11「摘要声明↔库内一致」——报告标「已填」的条目库内 `abstractNote` 必须非空，复用现有 `zotero_recheck` 只读回查（live 取不到即判不过，`--no-live` 记未执行）；D-07／D-08 口径不动。
+  - **历史回填**：按既有交付 DOI 清单一次性回填，落 `workspace/2026-09-18-abstract-backfill/`，轻形态（索引＋报告＋收据；不套三件合约、不跑门禁），执行走 `fill_abstracts.py`。
+  - **验证**：落地后真库写入验证——dry-run 出计划表 → 用户确认 → 写至少 1 篇既有条目补空＋1 篇新建 → 回查库内 `abstractNote` → 跑门禁断言收尾。
+- 备选（未采纳）：**`abstractNote`＋子笔记**（多一套写入与回查，留痕已有落点报告承担）｜**不进库只保交付物**（库内继续无单一真源）｜**既有条目全量覆盖**（会盖掉用户手工内容）｜**只填新建**（修不掉历史缺口）｜**一律实时取数不用表**（重复取数且与已抓池不一致）｜**只用表缺就缺**（用户点名的缺口修不掉）｜**双语或仅中文**（生成内容撞 R2 边界、字段膨胀）｜**上游强制 100% 摘要**（上游确有未 deposit 摘要的合法记录，会频繁假失败）｜**取写分离（先出侧车再入库，写入路径不联网）**（多一道工序与一件产物）｜**全塞进 seed 脚本**（两职责混装）｜**缺摘要阻断写库**（把合法文献挡在库外）｜**静默填不留痕**（下轮无法区分「本来没有」与「没去取」）｜**计划表不加摘要列**（确认门看不到）｜**覆盖率分母用全部记录或下载队列**（与入库侧「可摘要／不适用」口径对不上）｜**中间产物进版或不登记**（前者不合 ADR-0010 小文本清单，后者断再生链）｜**回填落 `.scratch/` 资产或分落历史交付 run/**（后者破「历史包冻结」）｜**门禁断言并入 D-07**（语义变宽）｜**另立门禁外脚本**（多一层入口）｜**术语「摘要侧车」**（英文借词，不合词表意译惯性）｜**隔离库验证**（本机只有单一本地库）。
+- 后果：
+  - 词表：`CONTEXT.md` 新设「摘要入库」区——「入库摘要表」「摘要入库」两词（`摘要侧车` 进 Avoid）。
+  - `use-zotero`：新增 `scripts/abstracts.py`（取数＋清洗共享模块，含文种适用性判定）；`scripts/seed_from_doi.py` 增 `--abstracts-file`／`--no-fetch` 并写 `abstractNote`；新增 `scripts/fill_abstracts.py`；`references/local-api.md`（写入口径与字段校验）、`references/placement.md`（落点报告摘要列与计数行链路）、`evals/evals.json` 同步。
+  - `med-lit-review`：`scripts/step2_dedupe_sort_bucket.py`（产入库摘要表＋覆盖率字段）；`references/protocols/step2-dedupe-and-snapshot.md`、`references/protocols/workspace-guide.md`（忽略类与 manifest 登记）、`references/templates/placement-report-template.md`（摘要列＋计数行）、`references/protocols/placement-guide.md`、`references/protocols/hitl-protocol.md`（计划表摘要列）、`SKILL.md`（Step1 调用纪律、Step4／Step5 行与校验节）、`references/templates/reading-card-template.md`（摘要源次序）；`evals/acceptance/run_gate.py` 增 D-11 与自检变异；`evals/evals.json` 同步。
+  - `jadense-scholar-search` 本体不动（摘要能力已具备）：调用纪律（默认 `--enrich`）写在编排层。
+  - 交付面：落点计划表与落点报告各增一列与计数行 → 既有交付（不含该列）按 ADR-0008 的历史包口径读记通过，不回改。
+  - 回填动作产出一个非交付的 workspace 目录（`2026-09-18-abstract-backfill`），占顶层一个条目。
+- 遗白（有意不决）：摘要译文与双语形态；非摘要型文献的等价文本（指南推荐意见、监管 summary）是否入库；摘要质量治理（超长图表摘要、勘误件）；回填是否顺带追挂本次合集（本次明确不做）；HTML 交付页等其他消费面是否改读库内摘要。

@@ -1,0 +1,4 @@
+# 术语候选队列：文件即队列——在队＝待晋升，任务内真源冻结，晋升一次成型并出账（条目移出）。
+# 字段：term／family／canonical（非本形时）／english／edges／source／version_candidate／no_edge（显式无边）。
+# 记录方式：uv run python scripts/term_expand.py "<候选词>" --append --source "<任务/日志行>"
+# 规则见 references/protocols/term-lexicon-protocol.md。

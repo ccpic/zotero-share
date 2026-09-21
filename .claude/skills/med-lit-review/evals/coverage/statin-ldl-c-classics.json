@@ -1,0 +1,112 @@
+{
+  "id": "statin-ldl-c-classics",
+  "topic": "他汀-LDL-C 经典段（票 08 冻结的可达子集 6 条＋CURVES 单锚）：期望形态＝核对通道**核出**并列入缺席清单／规模确认提示，**不是入池**",
+  "kind": "classic",
+  "expect_shape": "核出",
+  "applies_to": ["ldl-c"],
+  "baseline_delivery": "2026-09-18-ldl-c-primary-prevention",
+  "known_hits": [
+    {
+      "id": "WOSCOPS",
+      "doi": "10.1056/nejm199511163332001",
+      "openalex": "W2155598961",
+      "label": "Prevention of Coronary Heart Disease with Pravastatin in Men with Hypercholesterolemia（1995；基线被引 7498）"
+    },
+    {
+      "id": "JUPITER",
+      "doi": "10.1056/nejmoa0807646",
+      "openalex": "W2137983259",
+      "label": "Rosuvastatin to Prevent Vascular Events in Men and Women with Elevated C-Reactive Protein（2008；基线被引 6722）"
+    },
+    {
+      "id": "ASCOT-LLA",
+      "doi": "10.1016/s0140-6736(03)12948-0",
+      "openalex": "W2031185570",
+      "label": "Prevention of coronary and stroke events with atorvastatin in hypertensive patients（ASCOT-LLA，2003；基线被引 3799）"
+    },
+    {
+      "id": "CARDS",
+      "doi": "10.1016/s0140-6736(04)16895-5",
+      "openalex": "W2107295258",
+      "label": "Primary prevention of cardiovascular disease with atorvastatin in type 2 diabetes（CARDS，2004；基线被引 3795）"
+    },
+    {
+      "id": "AFCAPS/TexCAPS",
+      "doi": "10.1001/jama.279.20.1615",
+      "openalex": "W2129750583",
+      "label": "Primary Prevention of Acute Coronary Events With Lovastatin in Men and Women With Average Cholesterol Levels（AFCAPS/TexCAPS，1998；基线被引 5297）"
+    },
+    {
+      "id": "ALLHAT-LLT",
+      "doi": "10.1001/jama.288.23.2998",
+      "openalex": "W1500963439",
+      "label": "Major Outcomes in Moderately Hypercholesterolemic, Hypertensive Patients Randomized to Pravastatin vs Usual Care（ALLHAT-LLT，2002；基线被引 1335）"
+    },
+    {
+      "id": "CURVES",
+      "doi": "10.1016/s0002-9149(97)00965-x",
+      "openalex": "W2057674977",
+      "label": "Comparative Dose Efficacy Study of Atorvastatin Versus Simvastatin, Pravastatin, Lovastatin, and Fluvastatin（CURVES，1998；基线被引 1077；单锚＝早期剂量-疗效型三期，PMID 9514454）"
+    }
+  ],
+  "baseline": {
+    "source": ".scratch/search-coverage/assets/08-classic-coverage-probes-2026-09-18.md §9.1（交付池逐阶段可见性）／§9.3（被引降序通道的可见深度）",
+    "note": "基线读数链：12 条 pre-2010 他汀里程碑中 10 条从未进池（检索层缺席），WOSCOPS／LIPID 进池但落在队列截线 251 之外（读序层）。上列 7 条＝票 08 实测通道可达子集＋CURVES 单锚（§9.3 名次）；交付池侧 WOSCOPS／JUPITER 在池、其余 5 条归零。期望形态是**核出**：条目须被核对通道检出并进缺席清单／规模确认提示；在池与否与队列位次只是读数，**不作入池断言**（ADR-0023 接口注意）。名次与集合规模随 provider 排序／收录漂移只记漂移行、不判假失败。",
+    "pool": {
+      "delivery": "workspace/2026-09-18-ldl-c-primary-prevention",
+      "terminal_count": 433,
+      "queue_size": 251,
+      "in_pool": [
+        {"id": "WOSCOPS", "order": 320, "queue": "外（＝经典段被截）"},
+        {"id": "JUPITER", "order": 244, "queue": "内"}
+      ],
+      "absent": ["ASCOT-LLA", "CARDS", "AFCAPS/TexCAPS", "ALLHAT-LLT", "CURVES"]
+    },
+    "probes": [
+      {
+        "provider": "openalex",
+        "query": "statin primary prevention LDL cholesterol cardiovascular outcomes",
+        "sort": "cited_by_count:desc",
+        "per_page": 100,
+        "depth": 200,
+        "covers": [
+          {"id": "WOSCOPS", "rank": 9, "cited_by": 7498},
+          {"id": "JUPITER", "rank": 12, "cited_by": 6722},
+          {"id": "ALLHAT-LLT", "rank": 144, "cited_by": 1335}
+        ]
+      },
+      {
+        "provider": "openalex",
+        "query": "lovastatin primary prevention acute coronary events",
+        "sort": "cited_by_count:desc",
+        "per_page": 100,
+        "depth": 100,
+        "covers": [{"id": "AFCAPS/TexCAPS", "rank": 5, "cited_by": 5297}]
+      },
+      {
+        "provider": "openalex",
+        "query": "atorvastatin hypertensive patients coronary stroke events",
+        "sort": "cited_by_count:desc",
+        "per_page": 100,
+        "depth": 100,
+        "covers": [{"id": "ASCOT-LLA", "rank": 11, "cited_by": 3799}]
+      },
+      {
+        "provider": "openalex",
+        "query": "atorvastatin type 2 diabetes primary prevention cardiovascular",
+        "sort": "cited_by_count:desc",
+        "per_page": 100,
+        "depth": 100,
+        "covers": [{"id": "CARDS", "rank": 25, "cited_by": 3795}]
+      },
+      {
+        "provider": "openalex",
+        "query": "atorvastatin LDL cholesterol dose efficacy",
+        "sort": "cited_by_count:desc",
+        "per_page": 100,
+        "depth": 100,
+        "covers": [{"id": "CURVES", "rank": 83, "cited_by": 1077}]
+      }
+    ]
+  }
+}

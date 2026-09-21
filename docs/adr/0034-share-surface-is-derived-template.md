@@ -1,0 +1,22 @@
+# ADR-0034 分享面是派生模板仓，不是同库双枝
+
+- 日期：2026-09-21；状态：已接受；来源：grill-with-docs 会话（四轮 live exchange）——用户拍板：具名同事、模板仓各跑、工作副本照旧进版、独立仓 allowlist 手动导出。
+- 上下文：`master` 已跟踪工具面与私货/过程件（`workspace/` 交付小文本、`.scratch/` 过程票与商业库导出、`.impeccable/` 与 impeccable skill/agents、`.papercuts.jsonl`）。README 按「干净 clone 能跑」写。要把仓分给具名同事自己跑全链路，但不能把上述私货与仅开发链带出。有人提议用 git 不同 branch 分流。当时无 remote、对象从未离开本机。ADR-0010 / ADR-0025 要求工作副本把 `workspace/` 小文本进版——分享面不含交付，并不废止该合约。
+- 决定：
+  - **两份 git 身份**：工作副本（本机 `master`，含 `workspace/` 与 `.scratch/`，只推仅自己可见的全量备份远端）≠ 模板仓（同事 clone 的私有远端，只要工具面）。同事各 clone 各跑，不往模板仓回推交付。
+  - **模板仓由独立仓库 + allowlist 导出生成**，自带干净初始提交与线性历史；物理上无私货 blob。从工作副本手动跑 `uv run python scripts/export_share_template.py`（默认写到兄目录 `zotero-share/`，可用 `--out` 改）。禁止 `git push --all`、禁止把工作枝推进模板远端。脚本本身不进模板 allowlist。
+  - **模板 allowlist（包含）**：`.gitignore`、`.mcp.json`、`AGENTS.md`、`CLAUDE.md`、`CONTEXT.md`、`README.md`、`docs/`、`zotero-pdf2zh/`、`.claude/skills/{jadense-scholar-search,scansci-pdf,scansci-sort,use-zotero,med-lit-review}/`。
+  - **模板排除**：`workspace/`、`.scratch/`、`.impeccable/`、`.papercuts.jsonl`、`.claude/skills/impeccable/`、`.claude/agents/`、`DESIGN.md`、`PRODUCT.md`。
+  - 模板 `.gitignore` **沿用 ADR-0010**（只忽略 PDF 与 `run/` 内容，不整目录忽略 `workspace/`）。模板树初始无交付；同事本地产的小文本可在自己 clone 里进版，只是没有写回模板的权限。
+  - 模板只承诺 README 安装自检（§4.1–4.2）。不承诺 `run_gate.py --selftest` / 完整交付门禁——基座今在 `.scratch/`，不进分享面。
+  - 灰色渠道默认仍开（ADR-0006），风险归使用者；不因分发而改产品默认。
+- 备选（未采纳）：
+  - **同远端有亲缘双枝**（从 `master` 再开一枝删私货再推）：clone 默认同步全枝，历史里的 blob 仍在对象库，一次 `git push --all` 即泄。这是「用 branch 解决」的字面方案，否决。
+  - **同库 orphan 枝 + 两个远端 refspec**：本地仍一个对象库，纪律对了可不泄；一次把 `master` 推到模板远端或 GUI「推送全部」即泄。独立仓窗口更小。
+  - **每次 filter-repo 重写模板历史**：与工作仓切断，但每次哈希全变，同事难 pull。
+  - **工作副本也停跟 workspace / `.scratch`**：分享与工作可同一干净历史，但废止 ADR-0010 的交付可寻址，本轮否决。
+  - **模板整目录忽略 `workspace/`**：同事 status 更干净，但同一产品两套 ignore，且他们不能用该 clone 留交付历史。
+  - **分享面留演示交付或迁门禁基座**：打破「只要工具面」，或要把商业库导出/监管原文搬进 skill evals；本轮不承诺完整 gate。
+- 后果：ADR-0010 仍只管工作副本。同事拿到的树没有你的 topic 包、过程票、papercuts、impeccable 设计链。日常工具面改动不自动出现在模板仓，漏导是预期代价。工作副本不必洗历史。许可与第三方 skill 再分发未在本条拍板（私有同事圈后置）。
+- 交叉引用：ADR-0010（工作副本 `workspace/` 进版合约，本条不改其内容）、ADR-0025（交付分层，落点仍在工作副本）、ADR-0006（灰色默认，分享面不改）、ADR-0009（本条只记决策，不往 `CONTEXT.md` 塞分发术语）。
+- 修订（2026-09-21）：落地 `scripts/export_share_template.py`；默认导出位为兄目录 `D:\PyProjects\zotero-share`（独立 git 仓）。本条其余决定不变。

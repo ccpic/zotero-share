@@ -1,0 +1,58 @@
+[
+  {
+    "query": "Zotero 里有没有收录 DOI 10.1056/NEJMoa1913805 这篇？有就别重复建，没有再补正式条目。",
+    "should_trigger": true
+  },
+  {
+    "query": "把这 5 个 DOI 批量补录进 Zotero 文献库，建正式 article 条目并回查确认。",
+    "should_trigger": true
+  },
+  {
+    "query": "Zotero 本地写报 401，key 失效了，重新走授权拿永久 key 存好。",
+    "should_trigger": true
+  },
+  {
+    "query": "库里这篇只有网页快照，帮我转成正式条目，附件别丢。",
+    "should_trigger": true
+  },
+  {
+    "query": "Zotero 文献库的 PDF 附件正文怎么读？",
+    "should_trigger": true
+  },
+  {
+    "query": "Zotero 导出 RDF 后重装了，按 RDF 回灌条目附件和分类，要求计数对齐。",
+    "should_trigger": true
+  },
+  {
+    "query": "Zotero 附件上传报 400 Link mode must be set before setting attachment path，怎么修？",
+    "should_trigger": true
+  },
+  {
+    "query": "用 Python 直读 zotero.sqlite 查条目，比走 API 快吧？",
+    "should_trigger": true
+  },
+  {
+    "query": "Zotero 桌面端打不开了，启动时闪退，怎么修？",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我写个通用的学术论文下载器，不经过 Zotero。",
+    "should_trigger": false
+  },
+  {
+    "query": "Zotero 的同步配额满了，怎么扩容？",
+    "should_trigger": false
+  },
+  {
+    "query": "这篇论文的 DOI 后缀是多少？只查号码，不动文献库。",
+    "should_trigger": false
+  },
+  {
+    "query": "EndNote 的文献库怎么按期刊整理分类？",
+    "should_trigger": false
+  },
+  {
+    "query": "把这篇 PDF 的摘要翻译成中文，不用入库。",
+    "should_trigger": false
+  }
+]

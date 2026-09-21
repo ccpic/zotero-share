@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "scansci-pdf": {
+      "command": "scansci-pdf",
+      "args": ["run"]
+    },
+    "zotero-mcp": {
+      "command": "zotero-mcp",
+      "args": [],
+      "env": {
+        "ZOTERO_LOCAL": "true"
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "version": "anchors-v2",
+  "frozen_at": "2026-09-17",
+  "topic": "PCSK9 抑制剂用于 ASCVD",
+  "rule": {
+    "containment": "每条锚点的 identifier 必须在证据表（行号见 expect_rows）与引文表中命中；命中即过，不判位置与计数。",
+    "obtain": "kind=oa_journal 的锚点必须在下载收据中 success=true 且逐篇实际来源如实（允许灰色来源，以收据为准）；kind=regulatory 的锚点必须有版本记录与官方原文留档；kind=abstract 的锚点只断言包含与其可及性状态标注（摘要级／题录级，见 SKILL.md R5），不要求全文。",
+    "lock": "锚点现行性按窗口内可复用核对：crossref 核注册记录与题名年份、openfda 核说明书版本、document_digest 核官方文档字节指纹、record 核题录级证据；锁定结果写 anchor-lock.json（逐条记 pins 指纹与核对时刻、逐轮记复用块）。结果目录里已有上一轮锁、且 pins 全量全等、锁龄不超过 168 小时时复用原 valid 结论，门禁输出记「复用（锁龄 Xh）＋原锁定时刻」；锁龄自原锁定时刻算、不因复用顺延，超窗或 pins 任一项不等即联网重核；漂移、缺失、未取到（unverified）永不复用为通过。官方文档改版等现行性漂移记漂移日志（跑时刻成立即不算失败），注册记录整体缺失或传输失败取不到记录才算不通过（联网模式下 fail-closed，要显式放弃独立核对用 --no-live）。",
+    "version": "run 侧声明的版本号必须与 pins 在案各项一致（版本锚点）：不一致即断言不通过；锁定时刻发现 pins 已过时（官方改版／换版）记漂移日志并如实报，不判假失败。词表版本不在此钉——它随生长循环晋升推进，由 A-08／A-09 按 references/lexicon/term-lexicon.yaml 的真源现值核对。"
+  },
+  "pins": {
+    "cur_year": 2026,
+    "sort_weight_version": "sort-weights-v2",
+    "citation_format": "GB/T 7714-2015"
+  },
+  "anchors": [
+    {
+      "id": "A-01",
+      "route": "关键试验",
+      "kind": "oa_journal",
+      "identifier": "10.1056/NEJMoa1615664",
+      "label": "FOURIER 三期确证性试验主文",
+      "expect_rows": ["4a"],
+      "expect_channel": "不限（灰色亦过；来源逐篇如实）",
+      "lock": {"method": "crossref", "expect_title_contains": "Evolocumab and Clinical Outcomes", "expect_year": 2017}
+    },
+    {
+      "id": "A-02",
+      "route": "指南现行版",
+      "kind": "oa_journal",
+      "identifier": "10.1136/bmj-2021-069066",
+      "label": "BMJ 2022 快速推荐（PCSK9 抑制剂与依折麦布，风险分层推荐）",
+      "expect_rows": ["1a", "1b"],
+      "expect_channel": "不限（灰色亦过；来源逐篇如实）",
+      "lock": {"method": "crossref", "expect_title_contains": "PCSK9 inhibitors and ezetimibe for the reduction of cardiovascular events", "expect_year": 2022}
+    },
+    {
+      "id": "A-03",
+      "route": "指南现行版（中文路由）",
+      "kind": "oa_journal",
+      "identifier": "10.3389/fphar.2023.1190934",
+      "label": "2023 Chinese guideline for lipid management（中国血脂管理指南英文版）",
+      "expect_rows": ["2a", "2b"],
+      "expect_channel": "不限（灰色亦过；来源逐篇如实）",
+      "lock": {"method": "crossref", "expect_title_contains": "2023 Chinese guideline for lipid management", "expect_year": 2023}
+    },
+    {
+      "id": "A-04",
+      "route": "系统综合",
+      "kind": "oa_journal",
+      "identifier": "10.1136/bmj-2021-069116",
+      "label": "BMJ 2022 网络荟萃（PCSK9 抑制剂与依折麦布）",
+      "expect_rows": ["6"],
+      "expect_channel": "不限（灰色亦过；来源逐篇如实）",
+      "lock": {"method": "crossref", "expect_title_contains": "PCSK9 inhibitors and ezetimibe with or without statin therapy", "expect_year": 2022}
+    },
+    {
+      "id": "A-05",
+      "route": "中文条目",
+      "kind": "abstract",
+      "identifier": "10.3969/j.issn.1673-5765.2026.08.011",
+      "label": "2026 版卒中二级预防专家共识（中文库手动补充）",
+      "expect_rows": ["11"],
+      "expect_level_mark": "题录级",
+      "lock": {
+        "method": "record",
+        "expect_status": "中文题录级（无 Crossref 注册记录）",
+        "evidence": ["run/b1/cnki-export-20260916.txt", "run/b1/parse-report.json", "run/b1/dedupe-decisions.json"]
+      }
+    },
+    {
+      "id": "A-06",
+      "route": "关键试验（近两年窗）",
+      "kind": "abstract",
+      "identifier": "10.1056/NEJMoa2514428",
+      "label": "VESALIUS-CV（近两年窗 pivotal 更新，无合法开放全文）",
+      "expect_rows": ["4c"],
+      "expect_level_mark": "摘要级",
+      "recent": true,
+      "lock": {"method": "crossref", "expect_title_contains": "Evolocumab in Patients without a Previous Myocardial Infarction or Stroke", "expect_years": [2025, 2026], "year_note": "在线 2025-11-08／印刷 2026-01-08，两年份都算命中"}
+    },
+    {
+      "id": "A-07",
+      "route": "监管文件",
+      "kind": "regulatory",
+      "identifier": "BLA 125522",
+      "label": "FDA 说明书 REPATHA（evolocumab）",
+      "expect_rows": ["23"],
+      "version_pin": "SPL 版本 32",
+      "expect_archive": "openFDA drug/label 原文对照（set_id 与 effective_time 记入引文报告）",
+      "lock": {
+        "method": "openfda",
+        "brand": "REPATHA",
+        "expect_version": "32",
+        "expect_set_id": "cd61e902-166d-4aa6-9f3c-a18c1008d07e"
+      }
+    },
+    {
+      "id": "A-08",
+      "route": "监管文件",
+      "kind": "regulatory",
+      "identifier": "EU/1/15/1034",
+      "label": "EMA 产品特征概要 REPATHA（Annex I SPC）",
+      "expect_rows": ["25"],
+      "version_pin": "修订号 28",
+      "expect_archive": "run/b2/ema-repatha-spc.pdf（原文留档）",
+      "lock": {
+        "method": "document_digest",
+        "url": "https://www.ema.europa.eu/en/documents/product-information/repatha-epar-product-information_en.pdf",
+        "archive_path": "run/b2/ema-repatha-spc.pdf"
+      }
+    }
+  ]
+}

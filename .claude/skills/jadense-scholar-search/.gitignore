@@ -1,0 +1,17 @@
+# 依赖与构建产物
+node_modules/
+dist/
+
+# 日志
+*.log
+!package-lock.json
+
+# npm / npx 缓存
+.npm-cache/
+.npx-cache/
+
+# provider 响应与回填缓存（TTL 168h，见 workspace-guide §14.2；清理＝人工路径限定删除）
+.cache/
+
+# 压缩包
+*.zip

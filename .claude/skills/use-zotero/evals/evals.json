@@ -1,0 +1,210 @@
+{
+  "skill_name": "use-zotero",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "外部给了 6 个 DOI，要补录正式 article 条目。先做入库预检（DOI 权威单探针先行、命中零网络元数据），未命中再取 Crossref 并复核；只比对 DOI 字段判定是否已收录，快照类 webpage 不算正式收录，建条目后逐条 DOI 回查。",
+      "expected_output": "Agent 先做入库预检（DOI 单探针、命中即 `DUP`／`DUP-GAP` 取消或转挂载、fail-closed；零网络元数据）而不是直接建条目；快照类命中只记附件迁移事项；最终以回查 key 为准报告收录结果。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "用 DOI 片段 q=NEJMoa1913805 查库返回 0 命中，要求直接建条目入库。",
+      "expected_output": "Agent 拒绝直接建条目：片段式标识符 0 命中不等于缺失——先补其它探针（归一 DOI 整串、标题关键词跨类型核验），核验后才建。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "库里已有某论文的 webpage 快照（含 PDF 附件），但无 DOI/作者/卷期，要求把它当作已收录跳过。",
+      "expected_output": "Agent 判定快照不算正式收录，仍建正式 journalArticle 条目，并把附件挂过去后再删旧条目，不自动删附件。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "本地写入报 401 LocalAPIKeyRequiredError。要求重试写入直到成功。",
+      "expected_output": "Agent 不写重试循环，先重走 authorize_local 拿 key 并让用户点 Always Allow；key 存本机不进版位置复用。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "调用 authorize_local 后 30 秒超时报 ReadTimeout。要求换网络重试。",
+      "expected_output": "Agent 先判定为超时内无人点弹窗而非网络故障，告知用户去点 Zotero 弹窗并给足超时后单次重调，不写重试循环。",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "按 DOI 清单批量补录 10 篇正式条目，元数据从 Crossref 取。",
+      "expected_output": "Agent 走 scripts/seed_from_doi.py，先 --dry-run 核验去重结论再写库；入库预检先行（DOI 权威、命中零 Crossref 调用，`DUP`／`DUP-GAP` 取消或转挂载）；建后逐条 DOI 回查，不以写入返回为准。脚本 META 行 source=cache 时按原始补录日期记读数，不把陈元数据写成当日抓取；写库确认门不因缓存命中跳过。",
+      "files": [
+        "scripts/seed_from_doi.py"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "上次授权拿到的永久 key 已存仓库 .env，本次补录要求直接用存量 key 写库，不再弹窗。",
+      "expected_output": "Agent 从 .env 读 ZOTERO_LOCAL_API_KEY 初始化，不调 authorize_local；仅 key 失效报 401 时才重走授权并更新 .env。",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "刚补录 5 篇正式条目全在未分类条目，要求按现有架构归置并报告每篇落点。",
+      "expected_output": "Agent 先读全库 collections 按维度规则算出候选落点，经互动工具请用户确认一次后才写库；收尾逐条回查 collections 并报告落点，不以写入返回为准。脚本 CACHE 行记 source＝snapshot／snapshot+fetch／fetch 与命中读数或 miss 原因；库读快照只省读——确认门、写路径与逐条回查不因缓存命中跳过。",
+      "files": [
+        "references/placement.md",
+        "scripts/place_imports.py"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "一篇多药荟萃同时命中两个药品收藏集，要求直接放到其中一个。",
+      "expected_output": "Agent 不猜单一主题，把机制父级与两个药品目录一起列为候选，经互动工具请用户确认一次；落点以用户选择为准。",
+      "files": [
+        "references/placement.md"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "DOI 补录、归置、取全文一条龙，要求默认走完并报告断点；其中一篇 PDF 落盘后与目标不是同一篇。",
+      "expected_output": "Agent 默认串起建条目→归置→scansci-pdf 取 PDF→验身份→挂附件，每段可显式跳过并注明断点；错文不挂库，cache_clear 后换 strategy 重下。",
+      "files": [
+        "references/placement.md",
+        "references/attachments.md",
+        "scripts/attach_pdfs.py"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "用户要读某条目原文，该条目下已挂有 PDF 附件，要求给可读版本。",
+      "expected_output": "Agent 先查 children() 确认本地 PDF，有则直接给本地路径，不走下载链；仅无附件时才下载。",
+      "files": [
+        "references/reading.md"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "库内 4 篇同主题文献问哪篇引用最多，要求给出可比数据。",
+      "expected_output": "Agent 一次按 DOI 用 OpenAlex filter 批量取 cited_by_count 横向对比，注明查询日期与来源，不凭记忆作答。",
+      "files": [
+        "references/reading.md"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "已知某论文 DOI，要求列其参考文献对照表：标题、第一作者、被引数、是否已在库，默认按引用数排序。",
+      "expected_output": "Agent 跑 scripts/refs_report.py，先 Crossref 取 reference DOI 再 OpenAlex 批量 resolve，默认按 cited_by_count 降序出表；在库只认 DOI 字段比对，附件文本命中不算收录。",
+      "files": [
+        "references/reading.md",
+        "scripts/refs_report.py"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "任务里已下载并验明身份了一批 PDF（如上游 Step3 产物），要求把它们归置进库。",
+      "expected_output": "Agent 直挂任务内已验明身份的本地 PDF（scripts/attach_pdfs.py，先 --dry-run），不重抓；全文链只补缺失的；仍拿不到记断点。",
+      "files": [
+        "references/placement.md",
+        "scripts/attach_pdfs.py"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "一篇长标题论文本轮去重核查（dry-run）显示可建条目，用户要求直接入库；但库里其实已有同 DOI 的正式条目，只是标题检索被排序与 limit 截断未命中。",
+      "expected_output": "Agent 不直接建条目：入库预检以 DOI 权威探针先行，直接命中 DOI 字段后按 `DUP`（或 `DUP-GAP`）处理，不依赖标题检索是否命中、不建重复条目。",
+      "files": [
+        "scripts/seed_from_doi.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "目标论文 DOI 写作 `10.1056/NEJMoa1615664`，库里同篇条目的 DOI 字段为 `https://doi.org/10.1056/nejmoa1615664`，要求因写法不一致而视为未收录并另建条目。",
+      "expected_output": "Agent 按归一 DOI（小写、去前缀）比对 DOI 字段，判定为同一篇、按已收录（SKIP）处理，不另建重复条目。",
+      "files": [
+        "scripts/seed_from_doi.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "要把一篇已在库（含正文附件）的文献再加一遍，要求最快速度发现重复并尽快结束动作。",
+      "expected_output": "Agent 跑入库预检（DOI 权威、先于元数据）：单探针命中、查正文附件后输出 `DUP <doi> key=…` 并取消（不取 Crossref、不写库、exit 0）；不改走先元数据后查重的旧序。",
+      "files": [
+        "scripts/check_duplicates.py",
+        "scripts/seed_from_doi.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "添加的文献已在库但该条目缺正文附件，用户要求直接取消本次添加。",
+      "expected_output": "Agent 按入库预检输出 `DUP-GAP <doi> key=…`——不触发重复取消，转挂载链按既有条目 key 补挂（ADR-0020）；不新建条目、不照旧规整篇取消。",
+      "files": [
+        "scripts/check_duplicates.py",
+        "references/placement.md"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "下载队列（40 条 DOI）要开跑，要求避免下载库里已有的文献。",
+      "expected_output": "Agent 在下载排队前对队列跑批量入库预检（`check_duplicates.py`，≥10 篇自动走进程内全库索引）：`DUP` 剔出、`DUP-GAP` 保留并记 key、`NEW` 照常；预检失败 fail-closed 中止。",
+      "files": [
+        "scripts/check_duplicates.py",
+        "references/placement.md"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "Crossref 某文作者条目含无 given/family 的组织作者（只有 name），按 DOI 补录该篇正式条目。",
+      "expected_output": "条目不得因空作者整条失败：creators 过滤空名项（组织作者 name 兜底 lastName）后建成并回查 key；create_items 响应含 failed 时打印 code/message 定位原因，不静默漏建。",
+      "files": [
+        "scripts/seed_from_doi.py"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "外部给了 4 个 DOI 要补录正式条目；上游交付里带着 `run/b1/ingest-abstracts.json`，用户想知道每篇的摘要会从哪一级来、到底取到没有。",
+      "expected_output": "Agent 走 `scripts/seed_from_doi.py` 并传 `--abstracts-file run/b1/ingest-abstracts.json`：建条目前逐条按「入库摘要表 → Crossref → PubMed → OpenAlex」取正文，每个进到元数据解析的 DOI 留一行 `ABS <doi> source=table|crossref|pubmed|openalex|none status=filled|empty|na|no-identifier`；只有 `status=filled` 才把正文写进条目 `abstractNote`（原样入库，不翻译、不截断、不加占位文本），非 `filled` 时条目不留摘要正文；建后逐条只读回查，行形如 `OK <doi> key=<key> abstract=ok|empty|na|?`，以回查为唯一读数、不以写入返回为准；来源与状态逐条如实报告，缺口非阻断。",
+      "files": [
+        "scripts/seed_from_doi.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "库里有一批早前入库的条目没带摘要，其中几篇用户自己手工写过摘要；要求按 DOI 清单把空的补齐。",
+      "expected_output": "Agent 走 `scripts/fill_abstracts.py`：先 `--dry-run` 出计划表（`PLAN <doi> key=<key> current=empty action=fill`／`current=nonempty action=skip`／`current=missing action=skip`），一次确认后才写库；命中且 `abstractNote` 非空的一律 `SKIP nonempty <doi> key=<key>`、零写入、永不覆盖用户手工内容；只有取到正文（`status=filled`）才 `PATCH`；写完逐条 `VERIFY <doi> abstract=ok|empty|na` 回查，表尾计数行 `OK filled=N skipped-nonempty=N missing=N empty=N`（四数之和＝输入条数）；补过的条目再跑即 `SKIP nonempty`（幂等可重跑），仍为空的条目再跑会重试取数；缺口非阻断、退出码 0。",
+      "files": [
+        "scripts/fill_abstracts.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "断网环境给库内 5 篇既有条目补摘要，只许用 Step2 产出的入库摘要表，不许联网。",
+      "expected_output": "Agent 走 `scripts/fill_abstracts.py`，同时传 `--abstracts-file run/b1/ingest-abstracts.json` 与 `--no-fetch`：显式关联网补漏——表照读（那不是本次请求）、联网级一律不发，任何状态都不许来自 crossref／pubmed／openalex 取数；表命中者 `RESOLVE <doi> source=table status=filled` 并写入、回查 `abstract=ok`；表未命中者 `RESOLVE <doi> source=none status=empty`、字段留空、不写占位文本，也不因此判失败；摘要表读错 fail-closed 中止（不得静默降级成空表、伪装成「全库无摘要」）；缺口非阻断、退出码 0。",
+      "files": [
+        "scripts/fill_abstracts.py",
+        "scripts/abstracts.py"
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "既有条目补齐的清单里混着指南与监管文件（报告型条目），用户要求摘要字段一并处理并如实交代。",
+      "expected_output": "Agent 按库内条目自身的类型字段判适用性：`journalArticle`／`preprint`／`conferencePaper` 可摘要（取不到记 `empty`）；指南、监管文件、书章等非摘要型记 `na`（不适用、不算缺口）——`RESOLVE <doi> source=none status=na`、`VERIFY <doi> abstract=na`，字段留空、不写占位文本；类型缺失不判不适用，按可摘要侧处理；计数行的票面四位不含 `na`／`no-identifier`，这两类的如实通报落在 `RESOLVE`／`VERIFY` 行；缺口非阻断、退出码 0。",
+      "files": [
+        "scripts/fill_abstracts.py",
+        "references/local-api.md"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "同一 DOI 在 Step2 的 `run/b1/ingest-abstracts.json` 与 Crossref 元数据里都带摘要，用户要求以入库摘要表那份为准。",
+      "expected_output": "Agent 走 `scripts/seed_from_doi.py` 并传 `--abstracts-file run/b1/ingest-abstracts.json`：取数次序固定「入库摘要表 → Crossref → PubMed → OpenAlex」，表命中即 `ABS <doi> source=table status=filled`，不再为摘要补发 Crossref／PubMed／OpenAlex 取数请求（本轮已从 Crossref 元数据取到的正文只作交底、被表盖过）；条目 `abstractNote` 落表内那份正文（清洗后原样，不翻译、不截断）；留痕行的来源如实写 `table`，不得写成 crossref。",
+      "files": [
+        "scripts/seed_from_doi.py",
+        "scripts/abstracts.py",
+        "references/local-api.md"
+      ]
+    }
+  ]
+}

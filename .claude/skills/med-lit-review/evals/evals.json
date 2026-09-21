@@ -1,0 +1,126 @@
+{
+  "skill_name": "med-lit-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "用户要 PCSK9 用于动脉粥样硬化性心血管疾病的系统完备知识包：按新八节顺序（结论在证据表之前）与 §6 四块（背景／核心结论／讨论／支持结论）交付，每条实质断言可点到证据表行。",
+      "expected_output": "Agent 走五步主链输出新顺序八节知识包与七列证据表；§6 四块齐，核心段 ≥300 字且数字可在证据层查到，支持条目 ≥5 条带行号；研究空白章节不出现，不出学科空白与未来方向章节；缺口写入局限声明。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "知识包.md 已写完，用户要一次机器可断言的确定性校验，并要能分清“结构/可追溯硬事实被破坏”与“需人工复核的提示”。",
+      "expected_output": "Agent 调 scripts/review_knowledge.py：先 text 给人读、再 --format json 拿五字段 findings；固定传 --cur-year；按退出码判读（0 无 error / 1 有 error / 2 用法或文件错误）；把 error 硬门禁（七条）与 warning 复核痕迹分开汇报，规则与边界引 references/protocols/review-rules.md。",
+      "files": [
+        "evals/review-cases/dirty.md",
+        "evals/review-cases/clean.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "用户要查心肌梗死家族的检索词，并问新术语（如房颤）能不能顺手加进词表。",
+      "expected_output": "Agent 调 scripts/term_expand.py 取方向化扩展（上位→下级带 STEMI/NSTEMI，下级→上级带心肌梗死），引用词表版本并把方向记筛选日志；易混词不自动扩展只给提示；新词先对表挑战出初判边并 --append --edge 落 references/lexicon/term-lexicon.candidates.yaml 候选队列（不改进 references/lexicon/term-lexicon.yaml 真源；命中无边者不需落队），晋升按 patch/minor 与每家族每任务一问的预算（计划表标 [新增]／[并入]）；已落术语无边且未声明 no_edge 会被交付门禁逐条判红。规则原文见 references/protocols/term-lexicon-protocol.md。",
+      "files": [
+        "references/protocols/term-lexicon-protocol.md",
+        "references/lexicon/term-lexicon.yaml",
+        "evals/review-cases/lexicon.md"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "一次端到端知识包跑完，用户问这轮交付能不能算验收通过。",
+      "expected_output": "Agent 按 evals/acceptance/topic.md 的固定选题与钉子跑 evals/acceptance/run_gate.py（--run 指向本轮产物、--out 写结果目录、必要时 --no-live）：先锁定锚点（固定开放集必须命中、版本锚点核对现行版），再按断言表逐条断分步输出与硬门禁；counts/ranks/citations 只做容差或顺序断言，provider 漂移写漂移日志而不是判失败；硬门禁六项全过且软项缺口全进局限声明才算过，未披露缺口即不通过，并把 assertion-table/gate-report 归档给人读。",
+      "files": [
+        "evals/acceptance/topic.md",
+        "evals/acceptance/anchors.json"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "写库回查完成后，用户问：为什么库里的条目都没有附件 PDF？至少有些该有。",
+      "expected_output": "Agent 按 Step4 挂载口径执行：本地已验明身份 PDF 直挂（use-zotero scripts/attach_pdfs.py，先 --dry-run）不重抓；缺 PDF 者补漏环再抓一轮（下载策略按现行默认），仍缺记断点进局限声明；既有条目已有正文附件跳过、无则默认补挂（只写子附件）；落点报告附件列与 children 回查一致；无 PDF 条目键进局限声明（门禁 D-08/D-09 可验）。",
+      "files": [
+        "references/protocols/placement-guide.md",
+        "references/templates/placement-report-template.md"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "用户只给一句原始提示词：「帮我系统看一下 ABC 疾病在成人里的机制研究都有哪些证据」，没给研究问题，也没给关键词。",
+      "expected_output": "Agent 先按入口路线问确认路线，再走「研究问题确认」断点：把原始提示词拟成一句系统化研究问题（对象＋看什么＋结局/评价点），从它推导中英关键词初稿与边界默认，只读附注展示；用户照此或改写后冻结；agent 记一行问题自检（可检索／可回答），不过才追问一次；§2 落「研究问题：<一句话>」，无框架名、无要素表单；AFK 按拟稿继续并记断点；ST-02 只查 §2 有无研究问题陈述，不再按框架校验。",
+      "files": [
+        "references/protocols/hitl-protocol.md",
+        "references/templates/search-strategy-template.md"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "骨髓纤维化 myelofibrosis主要药物治疗的选择除了芦可替尼还有什么？主要疗效指标通常看什么？芦可替尼在疗效上和竞争品种相比怎么样？",
+      "expected_output": "Agent 判定触发 med-lit-review：同一医学主题多问并列（治疗选择＋疗效指标＋品种比较占三项），属综合证据意图；按入口两问启动（先路线问、后研究问题问），拟一句系统化研究问题冻结后走五步主链；单事实追问不适用。",
+      "files": [
+        "references/protocols/hitl-protocol.md",
+        "references/templates/search-strategy-template.md"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "芦可替尼的靶点是什么？",
+      "expected_output": "Agent 判定不触发 med-lit-review：单事实问答，直接回答，不走入口两问与五步主链。",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Step2 分桶跑完，用户想知道这次交付的摘要覆盖情况，并要求上游摘要能被机器读、不再靠手搓池文件。",
+      "expected_output": "Agent 跑 `scripts/step2_dedupe_sort_bucket.py`，交付目录内产出入库摘要表 `run/b1/ingest-abstracts.json`：`entries`（归一 DOI → `{abstract, source, collected_at}`）／`missing`（无正文的归一 DOI 清单）／`coverage`（`denominator`／`with_abstract`／`unknown_type`／`inputs`）；同 DOI 多来源取最完整者；`collected_at` 取池顶层 `frozen_at`（缺即拒绝产出、不编造时刻）；`coverage.denominator`＝终池标 DOI 记录数、`with_abstract`＝`entries` 条数、`entries＋missing`＝终池唯一 DOI 数，`unknown_type` 单列、绝不计出分母之外；`run/b1/bucketing-report.md`（四桶报告，忽略位中间件）有覆盖率一行（覆盖率 N/M ＋ 无摘要计数 ＋ 类型未知计数），机器读数进 `dedupe-report.json` 的 `coverage`；版内四桶读数与逐条路由在 `agent/bucketing-and-sources.md`；表为忽略类产物，随分桶类产物登记再生命令与哈希。",
+      "files": [
+        "scripts/step2_dedupe_sort_bucket.py",
+        "references/protocols/step2-dedupe-and-snapshot.md"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Step4 写库前用户要看计划表里每篇的摘要状态，写完后要落点报告逐条交代摘要落点与计数。",
+      "expected_output": "Agent 交互点三的计划表列含「摘要（已取到（来源：table／crossref／pubmed／openalex／库内）／待补（可补）／待补（不可补）／不适用）」——取值只用这四个、逐行如实（`已取到` 的来源位含 `库内`＝条目原有摘要、本轮未取数）；落点报告主表含「摘要」列（取值 `已填：<来源>`／`未填：<status>`／`不适用`，来源取 table／crossref／pubmed／openalex／库内，状态取 empty／no-identifier；`库内` 是落点报告的词，取数脚本的 `source` 取值仍为 table／crossref／pubmed／openalex／none），既有条目另表摘要列值与主表同；表尾摘要计数行形如 `摘要：已填 N（table a／crossref b／pubmed c／openalex d／库内 e）／未填 M／不适用 K`（五项子数之和仍须＝N）；摘要缺口非阻断（待补不阻断写库，该记的进局限声明）；未写库块不含计划表、确认列、回查列与摘要列，该块按 D-10 同式三级读法判豁免（读法次序：落点计划的口径注记 `摘要口径：present／absent`（写库设计跳过、自报不含计划表与摘要列者按现行口径读记）→ `agent/manifest.json` 的 `caliber.abstract_column` → 有无「摘要」列推断），缺列本身不构成历史包豁免——写照却漏列「摘要」列者不按 ADR-0008 读记通过。",
+      "files": [
+        "references/protocols/hitl-protocol.md",
+        "references/templates/placement-report-template.md"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "交付前校验：落点报告「摘要」列标了几篇「已填」，用户问这是不是被机器核过、取不到时怎么算。",
+      "expected_output": "Agent 按校验节执行 D-11「摘要声明↔库内一致」（档位＝硬门禁）：报告「摘要」列标「已填」的条目——含来源记 `库内` 者（条目原有摘要、本轮未取数）——库内 `abstractNote` 必须非空（复用本地库只读回查，`库内` 与其它来源同一读数核验）；live 取不到即判不过（fail-closed）；`--no-live` 记未执行；无「摘要」列者按 D-10 同式三级读法判豁免——读法次序：落点计划的口径注记 `摘要口径：present／absent`（写库设计跳过、自报不含计划表与摘要列者按现行口径读记）→ `agent/manifest.json` 的 `caliber.abstract_column` → 有无「摘要」列推断；判 `absent` 的旧口径包按当时口径读记通过（ADR-0008），写照却漏列「摘要」列者判 `present`、不豁免；未填与不适用不进失败（缺口非阻断，ADR-0021），该记的照记。",
+      "files": [
+        "SKILL.md",
+        "evals/acceptance/run_gate.py"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "这批文献里有几篇只拿到摘要、没拿到正文，别把它们当成没有处理。",
+      "expected_output": "Step5 对研读集内凡无全文的条目逐条走三级取数（库内条目 abstractNote → 入库摘要表 run/b1/ingest-abstracts.json → 联网，默认联网、--no-fetch 显式关）；取到的判 仅摘要、建卡（只填标识＋研究要素按摘要、不拆解）、进证据表与结论层；逐条读数落可及性清单 run/step5-accessibility.json（DOI｜可及性三值｜摘要来源｜取数时刻），按忽略类登记进 `agent/manifest.json` 再生条目；只有三级皆无才判 仅题录，仅题录不进表、不建卡，按 DOI 进局限声明。不适用摘要的文种（指南／监管文件／书章）在无全文时归仅题录。",
+      "files": [
+        "SKILL.md",
+        "references/templates/reading-card-template.md"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "仅摘要的文献也要能用上，不能只当背景。",
+      "expected_output": "证据表「设计与等级」列对仅摘要行标 · 仅摘要、偏倚备注写「未评（未见全文）」、该行在 §8 局限声明逐行交代；该行可被 §6.2 核心结论数字与 §6.4 支持结论条目引用，不另设形式要求；仅摘要按设计给先验 E 级，不因不可及降档。仅题录不给证据表留占位行，§8 按 DOI 交代。",
+      "files": [
+        "SKILL.md",
+        "references/templates/evidence-table-template.md"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "帮我看一下这个包里的「仅题录」标对没有。",
+      "expected_output": "门禁 E-19（硬门禁）交叉核对可及性清单 abstract_source、落点报告「摘要」列与库内 abstractNote：凡标仅题录而摘要可得即判不过并逐条列出 DOI；核心交叉核对离线可算，--no-live 只跳过库内加强项、不降级为未执行；可及性清单在场时另核它覆盖证据表全部行号。本包无仅题录条目时记「不适用」通过。",
+      "files": [
+        "evals/acceptance/run_gate.py",
+        "SKILL.md"
+      ]
+    }
+  ]
+}
