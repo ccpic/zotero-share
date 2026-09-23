@@ -2523,10 +2523,9 @@ mark { background: #ffe3d5; color: var(--ink); border-radius: 2px; padding: 0 1p
 .rownum { font-family: var(--font-mono); font-size: 12px; background: var(--ink); color: var(--on-dark);
   border-radius: var(--radius-sm); padding: 2px 8px; white-space: nowrap; }
 .erow-title { min-width: 0; }
-.t-authors { font-weight: 500; color: var(--body-strong); font-size: 14.5px; }
+.t-title { font-weight: 500; color: var(--body-strong); font-size: 14.5px; }
 .t-meta { color: var(--muted); font-size: 12.5px; }
-.t-doi { font-family: var(--font-mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-.t-doi a { color: var(--accent-active); }  /* 引文链的最后一跳：DOI 成链，读者不必自己拼检索式 */
+.t-doi { font-family: var(--font-mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
 .prio-list { list-style: none; margin: 8px 0 18px; padding: 0; }
 /* 先读行＝三行块（ADR-0031）：题名行（含名次与卡按钮）／副行／理由行；题名＋副行是一个链，
    所以整块的可点范围与卡片索引 chip 同构，区别只在它通向证据表行而不是卡。 */
@@ -2901,6 +2900,7 @@ PAGE_JS = r"""
       bindCloseOverlay(badgeBox);
     }
     $("#overlay").classList.add("open");
+    panel.scrollTop = 0;  // 同一容器复用：display:none→block 会恢复上次滚动位置，开卡一律回顶
     setBackgroundInert(true);
     lastOpener = opener || null;
     $(".overlay-close").focus();
@@ -3276,38 +3276,53 @@ def section_index(sections) -> list:
 # `文献` 的两条分档路径：模板形态按 `｜` 分四段；本仓多数包写成一条 GB/T 7714 引文，
 # 按引文自身的「[J]. 期刊, 年, 卷(期): 页. DOI …」兜底拆档。DOI 由 `.t-doi` 单独成链呈现一次。
 LIT_DOI_TAIL_RE = re.compile(r"\s*\.?\s*DOI\s+10\.\S+\s*$", re.I)
-LIT_GB_T_RE = re.compile(r"^(?P<head>.+?\[[A-Za-z]+\]\.)\s*(?P<venue>[^,]+?)\s*,\s*"
+# 期刊位用 `.+?` 而不是 `[^,]+?`：刊名本身可含逗号（`Diabetes, Metabolic Syndrome and Obesity`），
+# 排除逗号会把整条引文判成拆不出档位（页面退化为「整格塞进主行、副行不渲染」）。锚点仍是
+# 「逗号 ＋ 四位年份」——只放宽刊名一侧，不改变任何原有行的拆档结果。
+LIT_GB_T_RE = re.compile(r"^(?P<head>.+?\[[A-Za-z]+\]\.)\s*(?P<venue>.+?)\s*,\s*"
                          r"(?P<year>(?:19|20)\d{2})\s*(?P<tail>[^.]*)")
 
 
 def lit_parts(lit: str) -> tuple:
-    """`文献` → (主行, 年份, 期刊, 卷页)；拆不出年份档位时年份位为空串。
+    """`文献` → (题名, 作者, 年份, 期刊, 卷页)；拆不出年份档位时年份位为空串。
 
-    主行＝「作者. 题名[J].」，年份／期刊／卷页进副行（`.t-authors` 粗体、`.t-meta` 弱化）。
+    主行＝题名（去 `[J].` 标识，标题就是标题），副行＝作者 · 年份 · 期刊 · 卷页
+    （`.t-title` 粗体、`.t-meta` 弱化）。行头认文献靠题名，不是靠作者串。
     空档由调用方决定不渲染：`.t-meta` 无条件渲染时，拆不出档位就在每一行留下一个孤立的「·」。
     """
     text = (lit or "").strip()
     parts = [part.strip() for part in text.split("｜")]
     if len(parts) > 1:
         return (parts[0], parts[1], parts[2] if len(parts) > 2 else "",
-                " ｜ ".join(parts[3:]) if len(parts) > 3 else "")
+                " ｜ ".join(parts[3:]) if len(parts) > 3 else "", "")
     stripped = LIT_DOI_TAIL_RE.sub("", text)
     m = LIT_GB_T_RE.match(stripped)
     if not m:
-        return (stripped, "", "", "")
-    return (m.group("head"), m.group("year"), m.group("venue").strip(),
+        return (stripped, "", "", "", "")
+    head = m.group("head")
+    authors, dot, title = head.partition(". ")
+    if not dot:
+        return (head, "", m.group("year"), m.group("venue").strip(),
+                m.group("tail").strip().strip(",;").strip())
+    title = re.sub(r"\s*\[[A-Za-z]+\]\.\s*$", "", title).strip()
+    return (title, authors.strip(),
+            m.group("year"), m.group("venue").strip(),
             m.group("tail").strip().strip(",;").strip())
 
 
 def lit_full(lit: str) -> str:
-    """七列「文献」列的全引文：模板形态按四段重排，GB/T 单条则原文去 DOI 尾。
+    """七列「文献」列的全引文：题目置前（与行头同一函数出，两处永远一致）。
 
-    DOI 已在 `.t-doi` 成链出现一次；引文里再留一份，每行就多一个读者要跳过的重复串。
+    GB/T 单条重排为「题名. 作者. 期刊, 年, 卷(期): 页」；模板形态按位重排
+    （主行即题名位）；DOI 已在 `.t-doi` 成链出现一次，引文里不再留。
     """
     text = (lit or "").strip()
-    if "｜" in text:
-        return " ｜ ".join(part for part in lit_parts(text) if part)
-    return LIT_DOI_TAIL_RE.sub("", text).strip()
+    title, authors, year, venue, rest = lit_parts(text)
+    if not year and not venue:
+        return LIT_DOI_TAIL_RE.sub("", text).strip()
+    body = ". ".join(part for part in (title, authors) if part)
+    tail = ", ".join(part for part in (venue, year, rest) if part)
+    return f"{body}. {tail}." if tail else f"{body}."
 
 
 def research_question(package_md: str) -> str:
@@ -3407,8 +3422,8 @@ def split_table(body_lines):
 
 
 def row_card_html(ctx, row_no, row, meta) -> str:
-    head, year, venue, rest = lit_parts(row["文献"])
-    meta_line = " · ".join(part for part in (year, venue, rest) if part)
+    title, authors, year, venue, rest = lit_parts(row["文献"])
+    meta_line = " · ".join(part for part in (authors, year, venue, rest) if part)
     doi = meta["doi"]
     doi_line = (f'<a href="https://doi.org/{attresc(doi)}">DOI {esc(doi)}</a>'
                 if doi else f'DOI {MISSING}')
@@ -3445,7 +3460,7 @@ def row_card_html(ctx, row_no, row, meta) -> str:
             f'data-theme-labels="{attresc(ctx.theme_label(meta["theme"]))}" '
             f'data-cites="{meta["cites"] if meta["cites"] is not None else -1}">'
             f'<div class="erow-head"><span class="rownum">{ROW_LABEL} {row_no}</span>'
-            f'<div class="erow-title"><div class="t-authors">{ctx.inline(head)}</div>'
+            f'<div class="erow-title"><div class="t-title">{ctx.inline(title)}</div>'
             + (f'<div class="t-meta">{ctx.inline(meta_line)}</div>' if meta_line else "")
             + f'<div class="t-doi">{doi_line}</div></div></div>'
             f'<div class="erow-badges">{"".join(badges)}</div>'

@@ -268,6 +268,7 @@ def attach(args, memo, verdicts) -> int:
             except ImportError:
                 print('FAIL pymupdf missing: uv run --with pymupdf ...; 校验无法运行，不挂库')
                 return 1
+        e['_dup_count'] = len(dup)
         mark = "PLAN" if args.dry_run else "DO  "
         print(f"{mark} attach {fname} -> {parent} "
               f"{(p.get('title') or '')[:45]} file_ok={readable} dup={len(dup)} "
@@ -289,8 +290,13 @@ def attach(args, memo, verdicts) -> int:
             print(f"HOLD unverified {e['file']} 无文本层或无法验证，转人工复核后再挂")
     if blocked or unknown:
         return 1
+    dup_names = {}
     for e in entries:
         parent, fname = e["parent"], e["file"]
+        if (e.get("_dup_count") or 0) > 0:
+            dup_names.setdefault(parent, []).append(fname)
+            print(f"SKIP dup {fname} -> {parent} （库内已有同名子附件，不重复挂）")
+            continue
         title = e.get("title") or fname
         # 键顺序：itemType/linkMode 在前，filename/contentType 在后
         att = {"itemType": "attachment", "linkMode": "imported_file",
@@ -303,13 +309,19 @@ def attach(args, memo, verdicts) -> int:
         print(f"OK   uploaded {fname} -> {parent}")
 
     bad = 0
+    dup_names = {}
+    skipped = 0
     for e in entries:
         parent, fname = e["parent"], e["file"]
+        if (e.get("_dup_count") or 0) > 0:
+            skipped += 1
+            continue
         children = memo.get(parent)
         hit = any(c.get("data", {}).get("filename") in (fname, fname.split("/")[-1])
                   for c in children)
         print(f"{'OK  ' if hit else 'FAIL'} verify {parent} children={len(children)} want={fname}")
         bad += 0 if hit else 1
+    print(f"SUMMARY skipped_dup={skipped}")
     return 1 if bad else 0
 
 

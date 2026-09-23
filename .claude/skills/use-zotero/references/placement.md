@@ -31,4 +31,6 @@ Why: 单维度硬套会把指南、荟萃、亚组塞错类；多归类利用 Zo
 - `collections()` 复核目标 key 与父级；新建后断言 `successful` 非空。
 - 回查逐条打印 `key | title | collections | parent`，旧快照条目确认已消失。
 - 读快照只省读：`--dry-run` 的收藏集视图与 placements 逐条当前归属存包内 `.cache/`（分钟级 TTL、写库即失效），紧接的写库轮命中即省重复读，命中要过写前库版本探针；确认门、写路径与逐条回查不因命中改变（`CACHE` 行记 source＝snapshot／snapshot+fetch／fetch 与命中读数或 miss 原因）。
+- 回查按集合比对（strong rule）：`place_imports.py` 回查 `collections` 用集合相等判一致，不用列表 `==`——Zotero 返回顺序与写入顺序无关，顺序不同即误报 FAIL（本 session 实测 25 条误报，集合实际全一致）。
+- 同名合集复用：`place_imports.py` 写库前按（集名，父集）查既有收藏集，命中直接复用 key，不再建（重跑脚本不再造出同名空集）。
 - 改本文件任一规则时同步更新 `evals/evals.json` 并校验 JSON 可解析。

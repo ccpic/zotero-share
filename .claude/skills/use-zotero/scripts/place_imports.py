@@ -269,9 +269,17 @@ def main() -> int:
 
     new_keys = {}
     try:
-        if new_cols:
-            r = z.create_collections(new_cols)
-            for i, nc in enumerate(new_cols):
+        for nc in new_cols:
+            hit = next((k for k, c in live_cols.items()
+                        if c.get("name") == nc.get("name")
+                        and (c.get("parentCollection") or "") == (nc.get("parentCollection") or "")), None)
+            if hit:
+                new_keys[nc["name"]] = hit
+                print(f"OK   new-collection {nc['name']} key={hit} (reuse)")
+        create_cols = [nc for nc in new_cols if nc["name"] not in new_keys]
+        if create_cols:
+            r = z.create_collections(create_cols)
+            for i, nc in enumerate(create_cols):
                 k = (r.get("successful") or {}).get(str(i), {}).get("key")
                 if not k:
                     print(f"FAIL new-collection {nc['name']}")
@@ -301,7 +309,7 @@ def main() -> int:
     for key, cols in placements.items():
         cur = z.item(key)["data"]
         want = resolve(cols)
-        mark = "OK  " if cur.get("collections") == want else "FAIL"
+        mark = "OK  " if set(cur.get("collections") or []) == set(want) else "FAIL"
         if mark == "FAIL":
             bad += 1
         names = [live_cols.get(c, {}).get("name", c) for c in want]

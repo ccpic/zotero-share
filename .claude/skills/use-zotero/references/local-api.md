@@ -25,9 +25,13 @@ Allow（单次）只够一次写，下一次写报 401 `LocalAPIKeyRequiredError
 - 永久 key 落盘复用：`remember: true` 的 key 长期有效，存到本机不进版的位置
   （如仓库 `.env` 的 `ZOTERO_LOCAL_API_KEY` 并进 `.gitignore`），后续从该位置
   读 key 初始化，不再弹窗。
+
 - `authorize_local()` 调起后 Zotero 弹窗等人点：调用前先告知用户去点并给足
   超时（如 120s）。ReadTimeout 通常=超时内没人点，不是网络故障；不要写重试
   循环（授权端点有 rate limit），等人确认后单次重调。
+- 写操作必须显式传 key：建条目／建集（POST）无 key 可能成功，但改 `collections`（PATCH）必报 `API key required`——ad-hoc 调 pyzotero 写操作一律显式传 `local_api_key`（`--api-key` 或 `ZOTERO_LOCAL_API_KEY`），不依赖"之前能写"的印象。
+
+- 读 key 先去空白：`.env` 取值须 `strip` 引号与 `\r\n` 空白（Windows CRLF 尾随 `\r` 会使 key 非法，报 `Illegal header value`）。
 
 ## 写入前去重
 

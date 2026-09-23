@@ -21,6 +21,13 @@ pyzotero 的 `upload_attachments` 原样透传 dict 顺序，不会替你重排�
 `filename` 传 basedir 相对路径（如 `files/11/xxx.pdf`），`basedir` 指到
 files 的父目录：Zupload 靠它拼真实路径，发包时自动压成 basename。
 传绝对路径必错。
+`basedir` 本身用绝对路径（或先 `cd` 到固定工作目录再用相对路径）：它是按进程 cwd 解析的，cwd 不对则全员 `file_ok=False`（本 session 实测相对路径全员 unreadable，改绝对路径后 21/21 可读）。
+
+## 同名附件不重挂（strong rule）
+
+When: 挂载前 children 里已存在同名（`filename` 或 `title` 命中）子附件时。
+Do: 跳过该条上传（`attach_pdfs.py` 打印 `SKIP dup` 并计入 `SUMMARY skipped_dup`），只在报告记"既有条目已有附件 → 跳过"。既有条目默认补挂的前提是"缺正文附件"（`DUP-GAP`）；`dup` 计数只是展示——不跳过就会造出同名双附件。
+Why: 本 session 实测 9 个父条目被挂出同名双附件（脚本只展示 `dup=1` 仍继续上传），事后逐个删重复子附件收尾。
 
 ## 其他约定
 

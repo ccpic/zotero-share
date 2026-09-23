@@ -2,3 +2,121 @@
 # 字段：term／family／canonical（非本形时）／english／edges／source／version_candidate／no_edge（显式无边）。
 # 记录方式：uv run python scripts/term_expand.py "<候选词>" --append --source "<任务/日志行>"
 # 规则见 references/protocols/term-lexicon-protocol.md。
+- term: 靶器官损害
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 左心室肥厚
+      direction: ⊃
+    - type: hierarchy
+      target: 动脉僵硬度
+      direction: ⊃
+    - type: hierarchy
+      target: 认知障碍
+      direction: ⊃
+    - type: hierarchy
+      target: 视网膜病变
+      direction: ⊃
+    - type: hierarchy
+      target: 脑小血管病
+      direction: ⊃
+- term: 靶器官保护
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: confusable
+      target: 靶器官损害
+      direction: ≠
+- term: 左心室肥厚
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 靶器官损害
+      direction: ⊂
+- term: 动脉僵硬度
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 靶器官损害
+      direction: ⊂
+- term: 认知障碍
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 靶器官损害
+      direction: ⊂
+- term: 视网膜病变
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 靶器官损害
+      direction: ⊂
+- term: 脑小血管病
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 靶器官损害
+      direction: ⊂
+- term: 糖尿病
+  family: 糖尿病家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 糖尿病肾病
+      direction: ⊃
+- term: 动脉硬化
+  family: 靶器官家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: confusable
+      target: 动脉粥样硬化性心血管疾病
+      direction: ≠
+- term: 心房颤动
+  family: 靶器官家族
+  version_candidate: minor
+  no_edge: true
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges: []
+- term: 肥胖
+  family: 代谢家族
+  version_candidate: minor
+  no_edge: true
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges: []
+- term: 代谢综合征
+  family: 代谢家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 肥胖
+      direction: ⊃
+- term: 阻塞性睡眠呼吸暂停
+  family: 代谢家族
+  version_candidate: minor
+  no_edge: true
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges: []
+- term: 微量白蛋白尿
+  family: 蛋白尿家族
+  version_candidate: minor
+  source: Step1/关键词表 检索策略 2026-09-22
+  edges:
+    - type: hierarchy
+      target: 蛋白尿
+      direction: ⊂

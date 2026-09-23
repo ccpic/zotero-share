@@ -53,6 +53,13 @@ _Avoid_: 监管散落他处 / 擅自新建
 用户原始提示词经 agent 拟稿、入口确认后的一句话研究问题；确认稿作为检索与交付的基准。
 _Avoid_: 问题改写 / 选题 / 研究问题框架
 
+**确认产物**:
+入口两问的 ask 回执，或无人值守标记「按拟稿继续」；Step1 开跑的前置条件，缺失即阻断。
+_Avoid_: 口头确认 / 默认通过
+
+**前置卡点**:
+Step1 开跑前查确认产物在场、缺失即阻断补问的检查点；及时暴露防线，区别于交付门禁的事后可判。
+_Avoid_: 事后补记 / 门禁代查
 ### 检索发现
 
 **引文扩展**:
@@ -303,9 +310,10 @@ _Avoid_: 推荐阅读顺序 / 阅读优先级 / 文献打分 / 阅读指南
 
 **证据行**:
 证据表里的一行，＝一篇纳入文献在本包的证据身份；正文、先读与结论文里的引用指针一律写「文献 N」（读者面词；契约记号 `行 N` 只进锚点与机器列，ADR-0028），人读主件按它成链到表行、挂提取卡。
-_Avoid_: 行 N（裸行号当指针）/ 第 N 条
-做法与词表见 `.claude/skills/med-lit-review/references/protocols/reader-html.md` §3（硬门禁 `W-21` 判读者面文案）。
-
+**证据表草稿**:
+§5 七列表、引文表与 §5.1 名单组序在人工并入包内真源之前的机器草稿形态——三共享脚本（`step5_reference_list.py`／`step5_table.py`／`step5_priority.py`）只写 `run/` 草稿件（`run/step5-reference-list.md`／`run/step5-table.md`＋行映射／`run/step5-priority.md`），不碰 `agent/` 包内真源；「文献」列只取引文表同号条目，§5.1 只排名单与组序（理由与维度人工填）。
+_Avoid_: 表格自动生成 / 一键证据表 / 机器定稿
+做法见 `.claude/skills/med-lit-review/SKILL.md` Step5 格与 `.claude/skills/med-lit-review/references/templates/reference-list-template.md` §5；决策见 ADR-0035。
 ### 术语词表
 
 **生长循环**:

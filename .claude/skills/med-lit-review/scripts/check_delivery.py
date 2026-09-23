@@ -1246,6 +1246,52 @@ def priority_title_check(delivery: Path, page: str) -> tuple:
     return len(items), hits
 
 
+# GB/T 类型标识（`[J].`／`[M].`／`[EB/OL].` 一族）：真源列是 GB/T 单条的判据。
+# 页面行头呈题目置前（`lit_parts` 拆出的题名位），与真源列顺序无关——本门只判真源列形态。
+LIT_MARK_RE = re.compile(r"\[[A-Za-z]{1,3}(?:/[A-Z]{2})?\]\s*[.．]")
+LIT_MAIN_MIN = 6  # 去掉标识与作者段后题名位的可见字符下限；只剩作者串即题名丢失
+
+
+def w24_title_of(lit: str) -> str:
+    """真源「文献」列 → 题名位：`著者. 题名[X]. …` 取著者段之后、类型标识之前。"""
+    text = re.sub(r"\s*\.?\s*DOI\s+10\.\S+\s*$", "", (lit or "").strip(), flags=re.I)
+    m = re.search(r"^(?P<authors>.+?\.)\s*(?P<title>.+?)\s*\[[A-Za-z]{1,3}(?:/[A-Z]{2})?\]\s*[.．]", text)
+    return (m.group("title") if m else "").strip()
+
+
+def w24_literature_column(delivery: Path):
+    """W-24（硬门禁）：证据表「文献」列可拆档且有题名。
+
+    渲染器把「文献」列拆成三行：主行＝题名、副行＝作者 · 年份 · 期刊 · 卷页、末行＝DOI。
+    形态不合（`作者，年，期刊，DOI` 一类自拼简式）时它**静默退化**——整格塞进主行、
+    副行不渲染：读者看到的正是「作者＋期刊」，题名整段消失，而 W-04 的 DOI 检查照过。
+    故本条守三件：① 拆档成功（年份位四位年、期刊位非空）；② 真源列带 GB/T 类型标识；
+    ③ 题名位非空（只剩作者串＝题名缺位）。
+    P1 快线（无八节包）记「不适用」；引文表落点归 W-11、题名派生与身份段归 W-23。
+    """
+    package_path = delivery / package_parse.PACKAGE_REL
+    if not package_path.exists():
+        return ok("P1 快线：无证据表，本条不适用")
+    rows = package_parse.evidence_rows(package_path.read_text(encoding="utf-8"))
+    if not rows:
+        return bad("§5 证据表解析到 0 行（「文献」列无从核对）")
+    offenders = []
+    for num, row in sorted(rows.items(), key=lambda kv: package_parse.row_sort_key(kv[0])):
+        _title, _authors, year, venue, _rest = reader_html.lit_parts(row.get("文献") or "")
+        title = w24_title_of(row.get("文献") or "")
+        if not re.fullmatch(r"(?:19|20)\d{2}", year or "") or not venue:
+            offenders.append(f"{num}（拆不出年份／期刊位：页面退化为整格塞进主行、副行不渲染）")
+        elif not LIT_MARK_RE.search(row.get("文献") or ""):
+            offenders.append(f"{num}（真源列缺 GB/T 类型标识：不是 GB/T 单条）")
+        elif len(re.sub(r"\s+", "", title)) < LIT_MAIN_MIN:
+            offenders.append(f"{num}（题名位缺位：只剩作者串）")
+    if offenders:
+        return bad(f"§5「文献」列不合法 {len(offenders)}／{len(rows)} 行：{'；'.join(offenders[:3])}"
+                   f"——「文献」列须为 GB/T 7714 单条（作者. 题名[J]. 期刊, 年, 卷(期): 页），"
+                   f"自拼「作者，年，期刊」类简式会让题名在页面上整段消失")
+    return ok(f"文献列可拆档且有题名：§5 行 {len(rows)} 行的年份·期刊位与题名位全部在场")
+
+
 # ---------------------------------------------------------------- 软项读数（不阻断）
 
 
@@ -1347,6 +1393,7 @@ HARD_CHECKS = (
     ("W-21", "读者面文案零机器记号", w21_reader_copy),
     ("W-22", "入库集守恒（计划≡卡面）", w22_inclusion_set),
     ("W-23", "身份段消费面（逐行块／先读行题名／回退披露）", w23_identity_slots),
+    ("W-24", "证据表文献列可拆档且有题名", w24_literature_column),
 )
 SOFT_CHECKS = (
     ("W-14", "索引禁词面（告警）", w14_index_banned_words),
@@ -1409,10 +1456,14 @@ TWIN_PACKAGE = (
     "\n"
     "| 行号 | 文献 | 设计与等级 | 人群 | 干预与暴露 | 结局与效应量 | 偏倚备注 | 与结论的关联 |\n"
     "|---|---|---|---|---|---|---|---|\n"
-    "| 1 | 自证一 ｜ 2026 ｜ J ｜ DOI 10.0000/self-test-001 | 随机对照试验 · E1 | 人群 | 干预 | 结局 | 无 | 拟落 §4.1 |\n"
-    "| 2 | 自证二 ｜ 2026 ｜ J ｜ DOI 10.0000/self-test-002 | 系统综述 · E1 · 仅摘要 | 人群 | 干预 | 结局 | 无 | 拟落 §4.1 |\n"
-    "| 3 | 自证三 ｜ 2026 ｜ J ｜ DOI 10.0000/self-test-003 | 随机对照试验 · E1 | 人群 | 干预 | 结局 | 无 | 拟落 §4.2 |\n"
-    "| 4 | 自证四 ｜ 2026 ｜ J ｜ DOI 10.0000/self-test-004 | 队列研究 · E2 | 人群 | 干预 | 结局 | 无 | 拟落 §4.3 |\n"
+    "| 1 | 自证一 等. 自证题名一号研究[J]. 自证期刊, 2026, 1(1): 1-9. DOI 10.0000/self-test-001 | "
+    "随机对照试验 · E1 | 人群 | 干预 | 结局 | 无 | 拟落 §4.1 |\n"
+    "| 2 | 自证二 等. 自证题名二号研究[J]. 自证期刊, 2026, 1(2): 11-19. DOI 10.0000/self-test-002 | "
+    "系统综述 · E1 · 仅摘要 | 人群 | 干预 | 结局 | 无 | 拟落 §4.1 |\n"
+    "| 3 | 自证三 等. 自证题名三号研究[J]. 自证期刊, 2026, 2(1): 21-29. DOI 10.0000/self-test-003 | "
+    "随机对照试验 · E1 | 人群 | 干预 | 结局 | 无 | 拟落 §4.2 |\n"
+    "| 4 | 自证四 等. 自证题名四号研究[J]. 自证期刊, 2026, 2(2): 31-39. DOI 10.0000/self-test-004 | "
+    "队列研究 · E2 | 人群 | 干预 | 结局 | 无 | 拟落 §4.3 |\n"
     "\n"
     "### 5.1 优先精读序\n"
     "\n"
@@ -1434,8 +1485,10 @@ TWIN_PACKAGE = (
 TWIN_REFERENCE_LIST = (
     "# 引文表（自证孪生）\n"
     "\n"
-    "1. 自证一[J]. 自证期刊, 2026. DOI 10.0000/self-test-001.\n"
-    "2. 自证二[J]. 自证期刊, 2026. DOI 10.0000/self-test-002.\n"
+    "1. 自证一 等. 自证题名一号研究[J]. 自证期刊, 2026, 1(1): 1-9. DOI 10.0000/self-test-001.\n"
+    "2. 自证二 等. 自证题名二号研究[J]. 自证期刊, 2026, 1(2): 11-19. DOI 10.0000/self-test-002.\n"
+    "3. 自证三 等. 自证题名三号研究[J]. 自证期刊, 2026, 2(1): 21-29. DOI 10.0000/self-test-003.\n"
+    "4. 自证四 等. 自证题名四号研究[J]. 自证期刊, 2026, 2(2): 31-39. DOI 10.0000/self-test-004.\n"
 )
 # W-22 守恒等式的另一侧：计划条目与卡面 DOI 一一对应（缺一行／多一行都是变异）
 TWIN_PLAN = (
@@ -2089,6 +2142,18 @@ def run_selftest(out_root: Path):
              "W-23 孪生通过 → 变异未通过（先读行题名 ≠ 源题名）",
              lambda d: _rewrite(page_of(d), lambda t: t.replace(
                  '<span class="prio-title">自证卡一</span>', '<span class="prio-title">自证卡一…</span>')))
+        flip("§5 文献列自拼简式（题名整段丢失）", "W-24",
+             "W-24 孪生通过 → 变异未通过（拆不出年份／期刊位）",
+             lambda d: _rewrite(d / AGENT_DIR / "knowledge-package.md",
+                                lambda t: t.replace(
+                                    "| 1 | 自证一 等. 自证题名一号研究[J]. 自证期刊, 2026, 1(1): 1-9. DOI ",
+                                    "| 1 | 自证一，2026，自证期刊，DOI ")))
+        flip("§5 文献列主行只剩作者串（题名缺位）", "W-24",
+             "W-24 孪生通过 → 变异未通过（主行只剩作者串）",
+             lambda d: _rewrite(d / AGENT_DIR / "knowledge-package.md",
+                                lambda t: t.replace(
+                                    "| 1 | 自证一 等. 自证题名一号研究[J]. 自证期刊, 2026, 1(1): 1-9. DOI ",
+                                    "| 1 | 自证一 等[J]. 自证期刊, 2026, 1(1): 1-9. DOI ")))
         writeskip = twin_delivery(work, slug="writeskip-case")
         (writeskip / AGENT_DIR / "placement-plan.md").unlink()
         shutil.rmtree(writeskip / package_parse.CARDS_REL)
